@@ -20,17 +20,9 @@ import time
 
 class Doo(Game):
 
-    def get2d(self, t1D):
-        _t2D = [[t1D[k] for k in range(i,i+3)] for i in range(0,len(t1D),3)]
-        return _t2D
-
-    def get1d(self, t2D):
-        _t1D = [x[i] for i in range(3) for x in t2D]
-        return _t1D
-        
     def __init__(self):
         self.configuration = [VIDE if not case == 7 else BLANCS for case in range(12)], 1
-        
+
     def format(self, configuration):
         _tab, _tr = configuration
         _str = "c'est le tour {}".format(_tr)
@@ -42,14 +34,14 @@ class Doo(Game):
 
     def __str__(self):
         return self.format(self.configuration)
-        
+
     @property
     def configuration(self):
         """
         renvoie la configuration courante du jeu
         """
         return self.__etat
-    
+
     @configuration.setter
     def configuration(self, newcfg):
         assert isinstance(newcfg,(list,tuple))
@@ -57,7 +49,7 @@ class Doo(Game):
         assert isinstance(newcfg[0],list)
         assert isinstance(newcfg[1],int)
         self.__etat = newcfg
-        
+
     @classmethod
     def regles(cls):
         """ affiche les regles du jeux """
@@ -80,13 +72,15 @@ class Doo(Game):
 
     def finPartie(self,joueur):
         """ renvoie True si la partie est terminee """
-        return self.perdant(joueur)
+        return self.perdant(joueur) or self.perdant(self.adversaire(joueur))
 
     def listeCoups(self,joueur):
         """ renvoie la liste des coups autorises pour le joueur """
-        _t1D, _tr = self.configuration
-        _t2D = self.get2d(_t1D)
-        
+        possibles_dir = {J_ATT : ['u', 'd', 'r', 'l', 'ur', 'ul', 'dl', 'dr'],
+                         J_DEF : ['u', 'd', 'r', 'l']}
+        _board, _tr = self.configuration
+        best_chain = 0  # Plus grand nombre de pions mangeable en un coup
+
         if joueur == J_ATT:
             _mangeable = (BLANCS,)
             _control = (NOIRS,ROI)
@@ -95,25 +89,124 @@ class Doo(Game):
             _control = (BLANCS,)
             _mangeable = (NOIRS,ROI)
             _trait = _tr%2 == 0
-            
-        if _trait and _tr<8:
-            r1 = lambda i: not i == 4 and (not i in (1,3,5) or _tr > 1) #notB2 and (not(A2,B1,C2) or tour>1)
-            _pose = [(type,i) for i,x in enumerate(_t1D) if x in (VIDE,) and r1(i) for type in _control]
-            return tuple(_pose)
-        elif _trait:
-            _hr = [(i,i+1) for i,x in enumerate(_t1D) if x in _control and (i+1)%3 != 0 and _t1D[i+1] in (VIDE,)]
-            _hl = [(i,i-1) for i,x in enumerate(_t1D) if x in _control and i%3 != 0 and _t1D[i-1] in (VIDE,)]
-            _vu = [(i,i+3) for i,x in enumerate(_t1D) if x in _control and 0<i+3<len(_t1D) and _t1D[i+3] in (VIDE,)]
-            _vd = [(i,i-3) for i,x in enumerate(_t1D) if x in _control and 0<i-3<len(_t1D) and _t1D[i-3] in (VIDE,)]
-            _prise = [self.__prise_recursive(i, i, [], (_t1D, _tr)) for i,x in enumerate(_t1D) if x in _mangeable]
-            _unpack_prise = [x[i] for x in _prise if x for i in range(len(x))]
-            if joueur == J_ATT:
-                _dur = [(i,i+1) for i,x in enumerate(_t1D) if x in _control and (i+1)%3 != 0 and _t1D[i+1] in (VIDE,)]
-                _dul = [(i,i-1) for i,x in enumerate(_t1D) if x in _control and i%3 != 0 and _t1D[i-1] in (VIDE,)]
-                _ddl = [(i,i+3) for i,x in enumerate(_t1D) if x in _control and 0<i+3<len(_t1D) and _t1D[i+3] in (VIDE,)]
-                _ddr = [(i,i-3) for i,x in enumerate(_t1D) if x in _control and 0<i-3<len(_t1D) and _t1D[i-3] in (VIDE,)]                
-            return tuple(_hr+_hl+_vu+_vd+_unpack_prise)
-        return tuple()
+
+        if not _trait:
+            return tuple()
+
+        if  _tr<8:  # Si on est en phase de pose
+            r1 = lambda i: not i == 4 and (not i in (1,3,5) or _tr > 1)  # not B2 and (not(A2,B1,C2) or tour>1)
+            if ROI in _board and ROI in _control:
+                _control = (NOIRS, )
+            _pose = [(type_,i) for i,x in enumerate(_board) if x == VIDE and r1(i) for type_ in _control]
+            return _pose
+        else:
+            pions = [i for i, pion in enumerate(_board) if pion in _control]
+            liste_coup = []
+            for pion in pions:
+                if best_chain == 0:  # S'il n'y a rien à prendre (ou joueur en attaque)
+                    for dest in possibles_dir[joueur]:
+                        try:
+                            current = self.cell(pion, dest)
+                        except ValueError:
+                            pass
+                        else:
+                            if _board[current] == VIDE:
+                                liste_coup.append((pion, current))
+                liste_prises = self.prise(pion, _mangeable, possibles_dir[joueur], joueur == J_DEF)
+                if liste_prises:
+                    try:
+                        chain = len(liste_prises[0][1])
+                    except TypeError:  # Si ce n'est que l'indice de la case d'arrivée et pas un chemin
+                        chain = 1
+                else:
+                    chain = 0
+                if joueur == J_ATT:
+                    liste_coup.extend(liste_prises)
+                elif liste_prises:  # Si le joueur est en défense et il peut prendre
+                    if chain > best_chain:
+                        liste_coup = liste_prises
+                        best_chain = chain
+                    elif chain == best_chain:
+                        liste_coup.extend(liste_prises)
+            return liste_coup
+
+    def prise(self, pion, mangeable, dirs, biggest, already_eaten=None, path=None):
+        """
+        Donne la liste des prises possibles en partant de `pion` et en pouvant manger les `mangeable`
+        Si `biggest` vaut True, alors la liste des prises est récursive et retourne les plus longues
+        chaînes possibles.
+        """
+        board = self.configuration[0]
+        prises = []
+        if not path:
+            path = []
+        if not already_eaten:
+            already_eaten = []
+        for dest in dirs:
+            if path:
+                start = path[-1]
+            else:
+                start = pion
+            try:
+                other = self.cell(start, dest)
+                end = self.cell(start, dest*2)
+            except ValueError:
+                pass
+            else:
+                if board[other] in mangeable and board[end] == VIDE and other not in already_eaten:
+                    cur_path = path + [end]
+                    if biggest:
+                        if prises and len(cur_path) > len(prises[0][1]):
+                            prises = [cur_path]
+                        elif not prises or len(cur_path) == len(prises[0][1]):
+                            prises.append((pion, cur_path))
+                        new_prises = self.prise(pion, mangeable, dirs, biggest, already_eaten + [other], cur_path)
+                        if new_prises and len(new_prises[0][1]) > len(prises[0][1]):
+                            prises = new_prises
+                    else:
+                        prises.append((pion, cur_path))
+        final = []
+        for prise in prises:
+            if len(prise[1]) == 1:
+                final.append((prise[0], prise[1][0]))
+            else:
+                final.append(prise)
+        return final
+
+
+    def cell(self, pos, direction):
+        """
+        Donne la case dans la direction demandée si possible, sinon retourne une ValueError
+
+        exemple :
+        cell(4, 'u') -> 1
+        cell(10, 'd') -> ValueError
+        cell(3, 'ur') -> 1
+        cell(3, 'ul') -> ValueError
+        """
+        for char in direction:
+            if char == 'u':
+                if pos >= 3:
+                    pos -= 3
+                else:
+                    raise ValueError
+            if char == 'd':
+                if pos <= 8:
+                    pos += 3
+                else:
+                    raise ValueError
+            if char == 'l':
+                if pos % 3 != 0:
+                    pos -= 1
+                else:
+                    raise ValueError
+            if char == 'r':
+                if pos % 3 != 2:
+                    pos += 1
+                else:
+                    raise ValueError
+        return pos
+
 
     def __prise_recursive(self, start, temp_pos, l, temp_cfg):
         _t, _tr = temp_cfg
@@ -133,7 +226,7 @@ class Doo(Game):
             return _all
         elif l:
             return [(start, l)]
-                                     
+
     def joue(self,joueur,coup):
         """
         renvoie une nouvelle configuration
@@ -149,11 +242,6 @@ class Doo(Game):
         if self.perdant(joueur): return -10
         if self.gagnant(joueur): return 10
         return 0
-    
+
 class PlayerDoo(Player):
     pass
-
-d = Doo()
-print(d)
-print(d.listeCoups(J_ATT))
-print(d.listeCoups(J_DEF))
