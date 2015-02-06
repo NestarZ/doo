@@ -97,7 +97,11 @@ class Doo(Game):
             r1 = lambda i: not i == 4 and (not i in (1,3,5) or _tr > 1)  # not B2 and (not(A2,B1,C2) or tour>1)
             if ROI in _board and ROI in _control:
                 _control = (NOIRS, )
-            _pose = [(type_,i) for i,x in enumerate(_board) if x == VIDE and r1(i) for type_ in _control]
+            if joueur == J_ATT:
+                _pose = [(type_,i) for i,x in enumerate(_board) if x == VIDE and r1(i) for type_ in _control]
+            else:
+                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j) and i == VIDE and j == VIDE]
+            print(_pose)
             return _pose
         else:
             pions = [i for i, pion in enumerate(_board) if pion in _control]
