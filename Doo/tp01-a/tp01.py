@@ -15,7 +15,6 @@ VIDE = None # le code désignant une case vide
 # exple: from abstract import ... cf allumettes.py                  #
 #-------------------------------------------------------------------#
 from abstract import Game, Player
-import time
 #================ Debut de votre code ==============================#
 
 class Doo(Game):
@@ -167,6 +166,8 @@ class Doo(Game):
                         new_prises = self.prise(pion, mangeable, dirs, biggest, already_eaten + [other], cur_path)
                         if new_prises and len(new_prises[0][1]) > len(prises[0][1]):
                             prises = new_prises
+                        elif new_prises and len(new_prises[0][1]) == len(prises[0][1]):
+                            prises += new_prises
                     else:
                         prises.append((pion, cur_path))
         final = []

@@ -1,0 +1,6 @@
+Dans ce tp01 nous avons à l'aide de l'exemple allumettes et des objets créés en
+abstract créé l'objet Doo et ses méthodes avec respect des axiomes et signatures
+indiquées dans le pdf du td.
+Nous avons décidé de travailler directement sur un tableau de jeu en 1 dimension.
+Le fonctionnement de la méthode listecoups est notre priorité car elle sera utilisée
+dans le reste du programme pour avoir un jeu valide respectant les règles du Doo.

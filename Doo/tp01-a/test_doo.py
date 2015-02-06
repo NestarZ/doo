@@ -27,7 +27,7 @@ class TestDoo(unittest.TestCase):
         print(doo.listeCoups(J_DEF))
 
         board = [ VIDE, NOIRS, VIDE,
-                 VIDE, BLANCS, ROI,
+                 NOIRS, BLANCS, ROI,
                  BLANCS, NOIRS, VIDE,
                  VIDE, VIDE, VIDE ]
         t = 10
