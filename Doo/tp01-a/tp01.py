@@ -100,7 +100,6 @@ class Doo(Game):
                 _pose = [(type_,i) for i,x in enumerate(_board) if x == VIDE and r1(i) for type_ in _control]
             else:
                 _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j) and i == VIDE and j == VIDE]
-            print(_pose)
             return _pose
         else:
             pions = [i for i, pion in enumerate(_board) if pion in _control]
@@ -115,7 +114,7 @@ class Doo(Game):
                         else:
                             if _board[current] == VIDE:
                                 liste_coup.append((pion, current))
-                liste_prises = self.prise(pion, _mangeable, possibles_dir[joueur], joueur == J_DEF)
+                liste_prises = self.prise(pion, _mangeable, possibles_dir[J_DEF], joueur == J_DEF)
                 if liste_prises:
                     try:
                         chain = len(liste_prises[0][1])
@@ -160,7 +159,7 @@ class Doo(Game):
                     cur_path = path + [end]
                     if biggest:
                         if prises and len(cur_path) > len(prises[0][1]):
-                            prises = [cur_path]
+                            prises = [(pion, cur_path)]
                         elif not prises or len(cur_path) == len(prises[0][1]):
                             prises.append((pion, cur_path))
                         new_prises = self.prise(pion, mangeable, dirs, biggest, already_eaten + [other], cur_path)
@@ -173,7 +172,7 @@ class Doo(Game):
         final = []
         for prise in prises:
             if len(prise[1]) == 1:
-                final.append((prise[0], prise[1][0]))
+                final.append((prise[0], [prise[1][0]]))
             else:
                 final.append(prise)
         return final
