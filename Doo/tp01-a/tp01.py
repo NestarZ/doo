@@ -67,11 +67,17 @@ class Doo(Game):
         """ renvoie True si l'etat est une victoire pour le joueur """
         board, tour = self.configuration
         j_def_trait = tour % 2 == 0
+        nb_pions = board.count(ROI) + board.count(NOIRS)
+        if tour < 8:
+            return False
         if joueur == J_ATT:
-            nb_pions = board.count(ROI) + board.count(NOIRS)
             return board[DOO] in (NOIRS, ROI) and nb_pions == 1
         else:
-            return not self._listeCoupsosef(J_DEF) or not self._listeCoupsosef(J_ATT)
+            if j_def_trait:
+                joueur_qui_a_le_trait = J_DEF
+            else:
+                joueur_qui_a_le_trait = J_ATT
+            return not self._listeCoupsosef(joueur_qui_a_le_trait) and not self.gagnant(J_ATT) or nb_pions == 0
 
     def perdant(self,joueur):
         """ renvoie True si l'etat est une defaite pour le joueur """
@@ -117,7 +123,7 @@ class Doo(Game):
             if joueur == J_ATT:
                 _pose = [(type_,i) for i,x in enumerate(_board) if x == VIDE and r1(i) for type_ in _control]
             else:
-                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j) and i == VIDE and j == VIDE]
+                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j) and _board[i] == VIDE and _board[j] == VIDE]
             return _pose
         else:
             pions = [i for i, pion in enumerate(_board) if pion in _control]

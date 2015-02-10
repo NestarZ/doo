@@ -436,7 +436,7 @@ def test_gagnant():
     _lstr = ''
     _out = build_base()
     projet = ze_class()
-    for x in _out: # config test
+    for x in _out: # config tes
         projet.configuration = x.cfg
         prop = (projet.gagnant(x.joueur) == x.gagnant)
         _lstr += check_property( prop )
@@ -479,12 +479,14 @@ def test_listeCoups():
     _lstr = ''
     projet = ze_class()
     # A
+    _lstr += 'A'
     lcps = projet.listeCoups( J_ATT )
     for x,y in lcps:
         prop = ( x in (ROI,NOIRS) and y in [0,2,6,8,9,10,11] )
         _lstr += check_property( prop )
         if 'E' in _lstr : return _lstr
     # B
+    _lstr += 'B'
     _old,_cpt = projet.configuration
     _old[0] = ROI
     projet.configuration = _old,_cpt+1
@@ -494,7 +496,8 @@ def test_listeCoups():
                  y in [2,3,5,6,8,9,10,11] and
                  x < y )
         _lstr += check_property( prop )
-        if 'E' in _lstr : return _lstr
+        if 'E' in _lstr : 
+            return _lstr
     
     _out = build_base()
     for x in _out: # config test
@@ -503,16 +506,25 @@ def test_listeCoups():
             prop = (len(projet.listeCoups(x.joueur)) == x.listeCoups)
         else:
             prop = (len(projet.listeCoups(x.joueur)) >= 1)
-            
-        _lstr += check_property( prop )
+        lol = check_property ( prop )
+        if 'E' in lol:
+            print(x)
+            print(str(projet))
+            print("Joueur :", "ATT" if x.joueur == J_ATT else "DEF" )
+            print('Computed :', projet.gagnant(x.joueur))
+            print('Coups :', projet.listeCoups(x.joueur))
+            print("\n" + "*"*80)
+        _lstr += lol
 
         if x.listeCoups != 0 :
             _out = test_voisinage(x.cfg,x.joueur,
                                     projet.listeCoups(x.joueur), err='X')
-            if 'X' in _out : return _lstr+'E'
+            if 'X' in _out :
+                return _lstr+'E'
             _lstr += '.'
 
     # C pour les ATTQ
+    _lstr += 'C'
     for WHO in (NOIRS, ROI): # doit avoir le meme comportement
         _cfg = [ WHO, BLANCS, VIDE,
                 VIDE, BLANCS, BLANCS,
