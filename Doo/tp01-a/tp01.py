@@ -17,6 +17,8 @@ VIDE = None # le code désignant une case vide
 from abstract import Game, Player
 #================ Debut de votre code ==============================#
 
+DOO = 4
+
 class Doo(Game):
 
     def __init__(self):
@@ -63,18 +65,39 @@ class Doo(Game):
 
     def gagnant(self,joueur):
         """ renvoie True si l'etat est une victoire pour le joueur """
-        return self.perdant(self.adversaire(joueur))
+        board, tour = self.configuration
+        j_def_trait = tour % 2 == 0
+        if joueur == J_ATT:
+            nb_pions = board.count(ROI) + board.count(NOIRS)
+            return board[DOO] in (NOIRS, ROI) and nb_pions == 1
+        else:
+            return not self._listeCoupsosef(J_DEF) or not self._listeCoupsosef(J_ATT)
 
     def perdant(self,joueur):
         """ renvoie True si l'etat est une defaite pour le joueur """
-        return (self.configuration[0] == 0)
+        return self.gagnant(self.adversaire(joueur))
 
     def finPartie(self,joueur):
         """ renvoie True si la partie est terminee """
-        return self.perdant(joueur) or self.perdant(self.adversaire(joueur))
+        return self.gagnant(joueur) or self.gagnant(self.adversaire(joueur))
 
     def listeCoups(self,joueur):
         """ renvoie la liste des coups autorises pour le joueur """
+        _board, _tr = self.configuration
+
+        if joueur == J_ATT:
+            _trait = _tr % 2 != 0
+        else:
+            _trait = _tr % 2 == 0
+        if not _trait:
+            return []
+        if self.gagnant(J_ATT):
+            return []
+
+        return self._listeCoupsosef(joueur)
+
+
+    def _listeCoupsosef(self, joueur):
         possibles_dir = {J_ATT : ['u', 'd', 'r', 'l', 'ur', 'ul', 'dl', 'dr'],
                          J_DEF : ['u', 'd', 'r', 'l']}
         _board, _tr = self.configuration
@@ -83,14 +106,9 @@ class Doo(Game):
         if joueur == J_ATT:
             _mangeable = (BLANCS,)
             _control = (NOIRS,ROI)
-            _trait = _tr%2 != 0
         else:
             _control = (BLANCS,)
             _mangeable = (NOIRS,ROI)
-            _trait = _tr%2 == 0
-
-        if not _trait:
-            return tuple()
 
         if  _tr<8:  # Si on est en phase de pose
             r1 = lambda i: not i == 4 and (not i in (1,3,5) or _tr > 1)  # not B2 and (not(A2,B1,C2) or tour>1)
@@ -116,10 +134,7 @@ class Doo(Game):
                                 liste_coup.append((pion, current))
                 liste_prises = self.prise(pion, _mangeable, possibles_dir[J_DEF], joueur == J_DEF)
                 if liste_prises:
-                    try:
                         chain = len(liste_prises[0][1])
-                    except TypeError:  # Si ce n'est que l'indice de la case d'arrivée et pas un chemin
-                        chain = 1
                 else:
                     chain = 0
                 if joueur == J_ATT:
@@ -169,13 +184,7 @@ class Doo(Game):
                             prises += new_prises
                     else:
                         prises.append((pion, cur_path))
-        final = []
-        for prise in prises:
-            if len(prise[1]) == 1:
-                final.append((prise[0], [prise[1][0]]))
-            else:
-                final.append(prise)
-        return final
+        return prises
 
 
     def cell(self, pos, direction):
