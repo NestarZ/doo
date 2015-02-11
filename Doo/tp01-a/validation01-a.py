@@ -479,14 +479,12 @@ def test_listeCoups():
     _lstr = ''
     projet = ze_class()
     # A
-    _lstr += 'A'
     lcps = projet.listeCoups( J_ATT )
     for x,y in lcps:
         prop = ( x in (ROI,NOIRS) and y in [0,2,6,8,9,10,11] )
         _lstr += check_property( prop )
         if 'E' in _lstr : return _lstr
     # B
-    _lstr += 'B'
     _old,_cpt = projet.configuration
     _old[0] = ROI
     projet.configuration = _old,_cpt+1
@@ -524,7 +522,6 @@ def test_listeCoups():
             _lstr += '.'
 
     # C pour les ATTQ
-    _lstr += 'C'
     for WHO in (NOIRS, ROI): # doit avoir le meme comportement
         _cfg = [ WHO, BLANCS, VIDE,
                 VIDE, BLANCS, BLANCS,
@@ -606,6 +603,8 @@ def test_joue():
                     prop = ( x.cfg[0].count(VIDE) + _sz ==\
                              _rep[0].count( VIDE ) )
                     _lstr += check_property( prop )
+                    if 'E' in check_property( prop ):
+                        print(x, _choix)
     return _lstr
 
 def test_evaluation():

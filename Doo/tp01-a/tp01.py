@@ -26,7 +26,7 @@ class Doo(Game):
 
     def format(self, configuration):
         _tab, _tr = configuration
-        _str = "c'est le tour {}".format(_tr)
+        _str = "c'est au tour de {} ({})".format("J_ATT" if _tr%2 else "J_DEF", _tr)
         _border = '{}*{}*'.format('\n', '-'*(len(_tab)//3+1))
         for i, case in enumerate(_tab):
             _str += _border + '\n|' if i % 3 == 0 else ''
@@ -95,9 +95,13 @@ class Doo(Game):
             _trait = _tr % 2 != 0
         else:
             _trait = _tr % 2 == 0
+            
         if not _trait:
             return []
+        
         if self.gagnant(J_ATT):
+            return []
+        elif self.finPartie(J_DEF):
             return []
 
         return self._listeCoupsosef(joueur)
@@ -251,9 +255,27 @@ class Doo(Game):
         renvoie une nouvelle configuration
         apres que le joueur a effectue son coup
         """
-        _oldA,_oldT = self.configuration
-        return _oldA - coup, _oldT+1
-
+        _t, _tr = self.configuration
+        _temp_t, _temp_tr = _t[:], _tr + 1
+        if coup in self.listeCoups(joueur):
+            if isinstance(coup[0], str):
+                _temp_t[coup[1]] = coup[0]
+            elif isinstance(coup[1], int) and _tr < 8:
+                _temp_t[coup[0]] = BLANCS
+                _temp_t[coup[1]] = BLANCS
+            elif isinstance(coup[1], int):
+                _temp_t[coup[0]] = VIDE
+                _temp_t[coup[1]] = _t[coup[0]]
+            elif isinstance(coup[1], list):
+                depart, end = coup
+                for i in range(len(end)):
+                    distance = end[i] - depart
+                    _temp_t[depart+distance] = _temp_t[depart]
+                    _temp_t[depart] = VIDE
+                    _temp_t[depart+(distance//2)] = VIDE
+                    depart = end[i]
+            return _temp_t, _temp_tr
+        
     def evaluation(self,joueur):
         """
         evalue numeriquement la situation dans lequel se trouve le joueur
