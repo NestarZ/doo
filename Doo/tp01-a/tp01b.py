@@ -41,7 +41,7 @@ def ordi2humain(position):
 
 
 class First(Player):
-    def __init__(self, nickname="ProtossDoo"):
+    def __init__(self, nickname="ProtossFirst"):
         self.name = nickname
 
     @property
@@ -60,7 +60,7 @@ class First(Player):
         return None if not lcoups else lcoups[0]
 
 class Random(Player):
-    def __init__(self, nickname="ZergDoo"):
+    def __init__(self, nickname="ZergRandom"):
         self.name = nickname
 
     @property
@@ -79,7 +79,7 @@ class Random(Player):
         return None if not lcoups else random.choice(lcoups)
 
 class Humain(Player):
-    def __init__(self, nickname="HumanDoo"):
+    def __init__(self, nickname="Humanoid"):
         self.name = nickname
 
     @property
@@ -94,14 +94,19 @@ class Humain(Player):
     def choixCoup(self, game, joueur):
         assert isinstance(game, Doo), "Must be Doo"
         assert joueur in (J_ATT, J_DEF), "Must be a player"
-        return None if not lcoups else input("Entrez un coup respectant la syntaxe.")
+        lcoups = game.listeCoups(joueur)
+        return None if not lcoups else input("Entrez un coup respectant la syntaxe.\n>>> ")
 
 if __name__ == "__main__":
     doo = Doo() # Remplacer Doo par le nom de la classe de votre jeu
     a = Random()
     b = First()
+    c = Humain()
     print(a.name,"en attaque",a(doo,J_ATT))
     print(a.name,"en defense",a(doo,J_DEF))
     print('='*10)
     print(b.name,"en attaque",b(doo,J_ATT))
     print(b.name,"en defense",b(doo,J_DEF))
+    print('='*10)
+    print(c.name,"en attaque",c(doo,J_ATT))
+    print(c.name,"en defense",c(doo,J_DEF))
