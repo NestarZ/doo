@@ -41,7 +41,7 @@ def ordi2humain(position):
 
 
 class First(Player):
-    def __init__(self, nickname="ProtossFirst"):
+    def __init__(self, nickname="MazelDOOf"):
         self.name = nickname
 
     @property
@@ -60,7 +60,7 @@ class First(Player):
         return None if not lcoups else lcoups[0]
 
 class Random(Player):
-    def __init__(self, nickname="ZergRandom"):
+    def __init__(self, nickname="McDOO-Random"):
         self.name = nickname
 
     @property
@@ -79,7 +79,7 @@ class Random(Player):
         return None if not lcoups else random.choice(lcoups)
 
 class Humain(Player):
-    def __init__(self, nickname="Humanoid"):
+    def __init__(self, nickname="MamaDOO-Human"):
         self.name = nickname
 
     @property
