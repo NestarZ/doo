@@ -1,7 +1,7 @@
 import unittest
 
-from tp01 import Doo
-from tp01 import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
+from tp01a import Doo
+from tp01a import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
 
 
 
