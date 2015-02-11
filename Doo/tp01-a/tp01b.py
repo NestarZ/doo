@@ -41,45 +41,67 @@ def ordi2humain(position):
 
 
 class First(Player):
-    def __init__(self, nickname="MacDoo"):
+    def __init__(self, nickname="ProtossDoo"):
         self.name = nickname
 
+    @property
+    def name(self):
+        return self.__name
+    
     @name.setter
     def name(self, value):
         assert isinstance(value, str), 'Must be string'
         self.__name = value
 
-    def choixCoup(game, joueur):
+    def choixCoup(self, game, joueur):
         assert isinstance(game, Doo), "Must be Doo"
-        assert isinstance(joueurs, Player), "Must be a player"
+        assert joueur in (J_ATT, J_DEF), "Must be a player"
         lcoups = game.listeCoups(joueur)
         return None if not lcoups else lcoups[0]
 
 class Random(Player):
-    def __init__(self, nickname="MacDoo"):
+    def __init__(self, nickname="ZergDoo"):
         self.name = nickname
 
+    @property
+    def name(self):
+        return self.__name
+    
     @name.setter
     def name(self, value):
         assert isinstance(value, str), 'Must be string'
         self.__name = value
 
-    def choixCoup(game, joueur):
+    def choixCoup(self, game, joueur):
         assert isinstance(game, Doo), "Must be Doo"
-        assert isinstance(joueurs, Player), "Must be a player"
+        assert joueur in (J_ATT, J_DEF), "Must be a player"
         lcoups = game.listeCoups(joueur)
         return None if not lcoups else random.choice(lcoups)
 
 class Humain(Player):
-    def __init__(self, nickname="MacDoo"):
+    def __init__(self, nickname="HumanDoo"):
         self.name = nickname
 
+    @property
+    def name(self):
+        return self.__name
+    
     @name.setter
     def name(self, value):
         assert isinstance(value, str), 'Must be string'
         self.__name = value
 
-    def choixCoup(game, joueur):
+    def choixCoup(self, game, joueur):
         assert isinstance(game, Doo), "Must be Doo"
-        assert isinstance(joueurs, Player), "Must be a player"
+        assert joueur in (J_ATT, J_DEF), "Must be a player"
         return None if not lcoups else input("Entrez un coup respectant la syntaxe.")
+
+if __name__ == "__main__":
+    doo = Doo() # Remplacer Doo par le nom de la classe de votre jeu
+    a = Random()
+    b = First()
+    print(a.name,"en attaque",a(doo,J_ATT))
+    print(a.name,"en defense",a(doo,J_DEF))
+    print('='*10)
+    print(b.name,"en attaque",b(doo,J_ATT))
+    print(b.name,"en defense",b(doo,J_DEF))
