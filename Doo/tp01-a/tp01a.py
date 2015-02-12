@@ -26,7 +26,10 @@ class Doo(Game):
 
     @property
     def trait(self):
-        return J_ATT if self.configuration[1] % 2 == 1 else J_DEF
+        if self.configuration[1] % 2 == 1:
+            return J_ATT
+        else:
+            return J_DEF
 
     @property
     def pose(self):
@@ -73,14 +76,13 @@ class Doo(Game):
 
     def gagnant(self,joueur):
         """ renvoie True si l'etat est une victoire pour le joueur """
-        board, tour = self.configuration
-        nb_pions = board.count(ROI) + board.count(NOIRS)
+        nb_pions_noirs = self.board.count(ROI) + self.board.count(NOIRS)
         if self.pose:
             return False
         if joueur == J_ATT:
-            return board[DOO] in (NOIRS, ROI) and nb_pions == 1
+            return self.board[DOO] in (NOIRS, ROI) and nb_pions_noirs == 1
         else:
-            return not self._listeCoupsosef(self.trait) and not self.gagnant(J_ATT) or nb_pions == 0
+            return self.finPartie(joueur) and not self.gagnant(J_ATT)
 
     def perdant(self,joueur):
         """ renvoie True si l'etat est une defaite pour le joueur """
@@ -88,7 +90,12 @@ class Doo(Game):
 
     def finPartie(self,joueur):
         """ renvoie True si la partie est terminee """
-        return self.gagnant(joueur) or self.gagnant(self.adversaire(joueur))
+        nb_pions_noirs = self.board.count(ROI) + self.board.count(NOIRS)
+        nb_pions_blancs = self.board.count(BLANCS)
+        return not self.pose and (not self._listeCoupsosef(self.trait) 
+                                  or self.gagnant(J_ATT)
+                                  or nb_pions_noirs == 0
+                                  or nb_pions_blancs == 0)
 
     def listeCoups(self,joueur):
         """ renvoie la liste des coups autorises pour le joueur """
@@ -107,7 +114,6 @@ class Doo(Game):
     def _listeCoupsosef(self, joueur):
         possibles_dir = {J_ATT : ['u', 'd', 'r', 'l', 'ur', 'ul', 'dl', 'dr'],
                          J_DEF : ['u', 'd', 'r', 'l']}
-        _board, _tr = self.configuration
         best_chain = 0  # Plus grand nombre de pions mangeable en un coup
 
         if joueur == J_ATT:
@@ -118,16 +124,18 @@ class Doo(Game):
             _mangeable = (NOIRS,ROI)
 
         if self.pose: 
-            r1 = lambda i: not i == 4 and (not i in (1,3,5) or _tr > 1)  # not B2 and (not(A2,B1,C2) or tour>1)
-            if ROI in _board and ROI in _control:
+            r1 = lambda i: not i == 4 and (not i in (1,3,5) or self.tour > 1)
+            if ROI in self.board and ROI in _control:
                 _control = (NOIRS, )
             if joueur == J_ATT:
-                _pose = [(type_,i) for i,x in enumerate(_board) if x == VIDE and r1(i) for type_ in _control]
+                _pose = [(type_,i) for i,x in enumerate(self.board) if x == VIDE and r1(i) for type_ in _control]
             else:
-                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j) and _board[i] == VIDE and _board[j] == VIDE]
+                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j) 
+                                                                              and self.board[i] == VIDE
+                                                                              and self.board[j] == VIDE]
             return _pose
         else:
-            pions = [i for i, pion in enumerate(_board) if pion in _control]
+            pions = [i for i, pion in enumerate(self.board) if pion in _control]
             liste_coup = []
             for pion in pions:
                 if best_chain == 0:  # S'il n'y a rien à prendre (ou joueur en attaque)
@@ -137,18 +145,18 @@ class Doo(Game):
                         except ValueError:
                             pass
                         else:
-                            if _board[current] == VIDE:
+                            if self.board[current] == VIDE:
                                 liste_coup.append((pion, current))
                 liste_prises = self.prise(pion, _mangeable, possibles_dir[J_DEF], joueur == J_DEF)
-                if liste_prises:
-                        chain = len(liste_prises[0][1])
-                else:
-                    chain = 0
                 if joueur == J_ATT:
                     liste_coup.extend(liste_prises)
                 elif liste_prises:  # Si le joueur est en défense et il peut prendre
+                    if liste_prises:
+                        chain = max(len(liste_prises[i][1]) for i in range(len(liste_prises)))
+                    else:
+                        chain = 0
                     if chain > best_chain:
-                        liste_coup = liste_prises
+                        liste_coup = [prise for prise in liste_prises if len(prise[1]) == chain]
                         best_chain = chain
                     elif chain == best_chain:
                         liste_coup.extend(liste_prises)
@@ -157,7 +165,7 @@ class Doo(Game):
     def prise(self, pion, mangeable, dirs, biggest, already_eaten=None, path=None):
         """
         Donne la liste des prises possibles en partant de `pion` et en pouvant manger les `mangeable`
-        Si `biggest` vaut True, alors la liste des prises est récursive et retourne les plus longues
+        Si `biggest` vaut True, alors la liste des prises est récursive et retourne toutes les
         chaînes possibles.
         """
         board = self.configuration[0]
@@ -179,18 +187,9 @@ class Doo(Game):
             else:
                 if board[other] in mangeable and board[end] == VIDE and other not in already_eaten:
                     cur_path = path + [end]
+                    prises.append((pion, cur_path))
                     if biggest:
-                        if prises and len(cur_path) > len(prises[0][1]):
-                            prises = [(pion, cur_path)]
-                        elif not prises or len(cur_path) == len(prises[0][1]):
-                            prises.append((pion, cur_path))
-                        new_prises = self.prise(pion, mangeable, dirs, biggest, already_eaten + [other], cur_path)
-                        if new_prises and len(new_prises[0][1]) > len(prises[0][1]):
-                            prises = new_prises
-                        elif new_prises and len(new_prises[0][1]) == len(prises[0][1]):
-                            prises += new_prises
-                    else:
-                        prises.append((pion, cur_path))
+                        prises += self.prise(pion, mangeable, dirs, biggest, already_eaten + [other], cur_path)
         return prises
 
 
