@@ -229,27 +229,7 @@ class Doo(Game):
                 else:
                     raise ValueError
         return pos
-
-
-    def __prise_recursive(self, start, temp_pos, l, temp_cfg):
-        _t, _tr = temp_cfg
-        _c = [2] if len(_t)>temp_pos+2 and _t[temp_pos+1] and not _t[temp_pos+2] and (temp_pos+2)%3!=0 and (temp_pos+1)%3!=0 else []
-        _c += [-2] if temp_pos-2>=0 and _t[temp_pos-1] and not _t[temp_pos-2] and temp_pos%3!=0 and (temp_pos-1)%3!=0 else []
-        _c += [+6] if len(_t)>temp_pos+6 and _t[temp_pos+3] and not _t[temp_pos+6] else []
-        _c += [-6] if temp_pos-6>=0 and _t[temp_pos-3] and not _t[temp_pos-6] else []
-        if _c:
-            _all = []
-            for c in _c:
-                _temp_t = _t[:]
-                _temp_t[temp_pos] = VIDE
-                _temp_t[temp_pos+(c//2)] = VIDE
-                _temp_t[temp_pos+c] = _t[temp_pos]
-                for a in self.__prise_recursive(start, temp_pos+c, l+[temp_pos+c], (_temp_t, _tr)):
-                    _all.append(a) #récupere tous les différentes prises possibles
-            return _all
-        elif l:
-            return [(start, l)]
-
+    
     def joue(self,joueur,coup):
         """
         renvoie une nouvelle configuration
