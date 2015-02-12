@@ -24,6 +24,14 @@ class Doo(Game):
     def __init__(self):
         self.configuration = [VIDE if not case == 7 else BLANCS for case in range(12)], 1
 
+    @property
+    def trait(self):
+        return J_ATT if self.configuration[1] % 2 == 1 else J_DEF
+
+    @property
+    def pose(self):
+        return self.tour < 8
+    
     def format(self, configuration):
         _tab, _tr = configuration
         _str = "c'est au tour de {} ({})".format("J_ATT" if _tr%2 else "J_DEF", _tr)
@@ -41,7 +49,7 @@ class Doo(Game):
         """
         renvoie la configuration courante du jeu
         """
-        return self.__etat
+        return self.board, self.tour
 
     @configuration.setter
     def configuration(self, newcfg):
@@ -49,7 +57,7 @@ class Doo(Game):
         assert len(newcfg) == 2
         assert isinstance(newcfg[0],list)
         assert isinstance(newcfg[1],int)
-        self.__etat = newcfg
+        self.board, self.tour = newcfg
 
     @classmethod
     def regles(cls):
@@ -66,18 +74,13 @@ class Doo(Game):
     def gagnant(self,joueur):
         """ renvoie True si l'etat est une victoire pour le joueur """
         board, tour = self.configuration
-        j_def_trait = tour % 2 == 0
         nb_pions = board.count(ROI) + board.count(NOIRS)
-        if tour < 8:
+        if self.pose:
             return False
         if joueur == J_ATT:
             return board[DOO] in (NOIRS, ROI) and nb_pions == 1
         else:
-            if j_def_trait:
-                joueur_qui_a_le_trait = J_DEF
-            else:
-                joueur_qui_a_le_trait = J_ATT
-            return not self._listeCoupsosef(joueur_qui_a_le_trait) and not self.gagnant(J_ATT) or nb_pions == 0
+            return not self._listeCoupsosef(self.trait) and not self.gagnant(J_ATT) or nb_pions == 0
 
     def perdant(self,joueur):
         """ renvoie True si l'etat est une defaite pour le joueur """
@@ -89,14 +92,8 @@ class Doo(Game):
 
     def listeCoups(self,joueur):
         """ renvoie la liste des coups autorises pour le joueur """
-        _board, _tr = self.configuration
-
-        if joueur == J_ATT:
-            _trait = _tr % 2 != 0
-        else:
-            _trait = _tr % 2 == 0
-            
-        if not _trait:
+        
+        if self.trait != joueur:
             return []
         
         if self.gagnant(J_ATT):
@@ -120,7 +117,7 @@ class Doo(Game):
             _control = (BLANCS,)
             _mangeable = (NOIRS,ROI)
 
-        if  _tr<8:  # Si on est en phase de pose
+        if self.pose: 
             r1 = lambda i: not i == 4 and (not i in (1,3,5) or _tr > 1)  # not B2 and (not(A2,B1,C2) or tour>1)
             if ROI in _board and ROI in _control:
                 _control = (NOIRS, )
@@ -230,26 +227,6 @@ class Doo(Game):
                     raise ValueError
         return pos
 
-
-    def __prise_recursive(self, start, temp_pos, l, temp_cfg):
-        _t, _tr = temp_cfg
-        _c = [2] if len(_t)>temp_pos+2 and _t[temp_pos+1] and not _t[temp_pos+2] and (temp_pos+2)%3!=0 and (temp_pos+1)%3!=0 else []
-        _c += [-2] if temp_pos-2>=0 and _t[temp_pos-1] and not _t[temp_pos-2] and temp_pos%3!=0 and (temp_pos-1)%3!=0 else []
-        _c += [+6] if len(_t)>temp_pos+6 and _t[temp_pos+3] and not _t[temp_pos+6] else []
-        _c += [-6] if temp_pos-6>=0 and _t[temp_pos-3] and not _t[temp_pos-6] else []
-        if _c:
-            _all = []
-            for c in _c:
-                _temp_t = _t[:]
-                _temp_t[temp_pos] = VIDE
-                _temp_t[temp_pos+(c//2)] = VIDE
-                _temp_t[temp_pos+c] = _t[temp_pos]
-                for a in self.__prise_recursive(start, temp_pos+c, l+[temp_pos+c], (_temp_t, _tr)):
-                    _all.append(a) #récupere tous les différentes prises possibles
-            return _all
-        elif l:
-            return [(start, l)]
-
     def joue(self,joueur,coup):
         """
         renvoie une nouvelle configuration
@@ -260,7 +237,7 @@ class Doo(Game):
         if coup in self.listeCoups(joueur):
             if isinstance(coup[0], str):
                 _temp_t[coup[1]] = coup[0]
-            elif isinstance(coup[1], int) and _tr < 8:
+            elif isinstance(coup[1], int) and self.pose:
                 _temp_t[coup[0]] = BLANCS
                 _temp_t[coup[1]] = BLANCS
             elif isinstance(coup[1], int):
@@ -283,6 +260,3 @@ class Doo(Game):
         if self.perdant(joueur): return -10
         if self.gagnant(joueur): return 10
         return 0
-
-class PlayerDoo(Player):
-    pass
