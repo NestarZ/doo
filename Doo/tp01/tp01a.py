@@ -34,8 +34,9 @@ class Doo(Game):
     @property
     def pose(self):
         return self.tour < 8
-    
-    def format(self, configuration):
+
+    @classmethod
+    def format(cls, configuration):
         _tab, _tr = configuration
         _str = "c'est au tour de {} ({})".format("J_ATT" if _tr%2 else "J_DEF", _tr)
         _border = '{}*{}*'.format('\n', '-'*(len(_tab)//3+1))
