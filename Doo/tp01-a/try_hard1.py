@@ -13,7 +13,7 @@ def lol():
     traite = []
     i = 0
     while a_traiter:
-        if i % 500 == 0:
+        if i % 100 == 0:
             print('a traiter:', len(a_traiter))
             print('traité:', len(traite))
             i = 0
@@ -21,7 +21,7 @@ def lol():
         doo = Doo()
         conf = a_traiter.pop()
         doo.configuration = conf
-        if conf not in traite:
+        if (conf[0], doo.trait) not in traite:
             lose = True
             for futur in futur_confs(doo):
                 doo_t = Doo()
@@ -30,7 +30,10 @@ def lol():
                     lose = False
                     break
             if lose:
-                confs_lose[doo.trait].append(conf)
+                confs_lose[doo.trait].append((conf[0], doo.trait))
+                conf_sym = sym(conf[0])
+                if conf_sym != conf[0]:
+                    confs_lose[doo.trait].append((conf_sym, doo.trait))
 
             win = False
 
@@ -41,21 +44,34 @@ def lol():
                     win = True
                     break
             if win:
-                confs_win[doo.trait].append(conf)
+                confs_win[doo.trait].append((conf[0], doo.trait))
+                conf_sym = sym(conf[0])
+                if conf_sym != conf[0]:
+                    confs_win[doo.trait].append((conf_sym, doo.trait))
+
             if not win and not lose:
                 for futur in futur_confs(doo):
                     a_traiter.append(futur)
-            traite.append(conf)
+            traite.append((conf[0], doo.trait))
+            conf_sym = sym(conf[0])
+            if conf_sym != conf[0]:
+                    traite.append((conf_sym, doo.trait))
 
     print('nb win noir', len(confs_win[J_ATT]))
     print('nb win blanc', len(confs_win[J_DEF]))
     print('nb lose noir', len(confs_lose[J_ATT]))
     print('nb lose blanc', len(confs_lose[J_DEF]))
 
-    # for conf in confs_win[J_DEF]:
-    #     doo = Doo()
-    #     doo.configuration = conf
-    #     print(doo)
+    for conf in confs_lose[J_DEF]:
+        doo = Doo()
+        doo.configuration = conf
+        print(doo)
+
+def sym(board):
+    retour = board[:]
+    for i in range(4):
+        retour[i*3], retour[i*3+2] = retour[i*3+2], retour[i*3]
+    return retour
 
 
 def futur_confs(doo=None):
