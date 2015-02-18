@@ -3,13 +3,51 @@ import tp01b
 
 from tp01a import Doo
 from tp01a import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
-                
+
+def standardconf(customconf):
+    """
+    Retourne une configuration standardisé (tablier, tour) avec tour > 8
+    à partir d'une configuration customisé (tablier, trait)
+    """
+    return customconf[0], 10 if customconf[1] == J_DEF else 11
+
+def exist_position_perdante_adv(to_check):
+    """
+    On dit qu'une position est gagnante pour un joueur si il existe un coup
+    tel que la nouvelle configuration est une position perdante pour l'adversaire
+    """
+    temp_doo = Doo()
+    for new_conf in to_check:
+        temp_doo.configuration = standardconf(new_conf)
+        position_perdante_adv = temp_doo.perdant(temp_doo.trait)
+        if position_perdante_adv: return True
+    return False
+
+def all_position_gagnante_adv(to_check):
+    """
+    Une position est perdante pour un joueur, si quelque soit son coup
+    la nouvelle configuration est une position gagnante pour l'adversaire
+    """
+    temp_doo = Doo()
+    a = None
+    for new_conf in to_check:
+        temp_doo.configuration = standardconf(new_conf)
+        position_gagnante_adv = temp_doo.gagnant(temp_doo.trait)
+        if not position_gagnante_adv: return False
+        a = new_conf
+    if a:
+        print(Doo.format(standardconf(a)))
+    return True
+
 def final_configurations():
+    """
+    Retourne les configurations gagnantes/perdantes pour chaque camp
+    """
+    
     confs_win = {J_ATT: [], J_DEF: []}
     confs_lose = {J_ATT: [], J_DEF: []}
 
     doo = Doo()
-    j_trait = doo.trait
     
     done = []
     to_check = list(futur_confs())
@@ -18,20 +56,20 @@ def final_configurations():
     while to_check:
         conf = to_check.pop()
         if conf not in done:
-            _tr = 10 if conf[1] == J_DEF else 11
-            doo.configuration = conf[0], _tr
-            win = doo.gagnant(doo.trait)
-            lose = doo.perdant(doo.trait)
+            doo.configuration = standardconf(conf)
+            to_check2 = futur_confs(doo)
+            win = exist_position_perdante_adv(to_check2)
+            lose = all_position_gagnante_adv(to_check2)
             if win:
-                print(Doo.format(conf))
-                confs_win[j_trait].append(conf)
+                confs_win[doo.trait].append(conf)
             elif lose:
-                confs_lose[j_trait].append(conf)
+                confs_lose[doo.trait].append(conf)
             else:
-                to_check2 = futur_confs(doo)
+                print(len(to_check))
                 for e in to_check2:
                     if e not in done:
                         to_check.append(e)
+                print(len(to_check))
             done.append(conf)
     print(len(done))
     
@@ -41,10 +79,13 @@ def final_configurations():
     print('nb lose blanc', len(confs_lose[J_DEF]))
 
 def futur_confs(doo=None):
+    """
+    Génerateur des nouvelles configurations possibles 
+    """
     if doo != None:
         for coup in doo.listeCoups(doo.trait):
             conf = doo.joue(doo.trait, coup)
-            yield conf[0], doo.trait
+            yield conf[0], doo.adversaire(doo.trait)
     else:
         doo = Doo()
         board = [VIDE, VIDE, VIDE,
@@ -59,5 +100,6 @@ def futur_confs(doo=None):
                     temp[y] = BLANCS
                     yield temp, J_ATT
                     yield temp, J_DEF
-                    
-final_configurations()
+
+if __name__ == '__main__' :                   
+    final_configurations()
