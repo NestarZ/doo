@@ -11,7 +11,7 @@ def standardconf(customconf):
     """
     return customconf[0], 10 if customconf[1] == J_DEF else 11
 
-def exist_position_perdante_adv(to_check):
+def exist_position_adv_perdante(to_check):
     """
     On dit qu'une position est gagnante pour un joueur si il existe un coup
     tel que la nouvelle configuration est une position perdante pour l'adversaire
@@ -23,7 +23,7 @@ def exist_position_perdante_adv(to_check):
         if position_perdante_adv: return True
     return False
 
-def all_position_gagnante_adv(to_check):
+def all_position_adv_gagnante(to_check):
     """
     Une position est perdante pour un joueur, si quelque soit son coup
     la nouvelle configuration est une position gagnante pour l'adversaire
@@ -34,9 +34,6 @@ def all_position_gagnante_adv(to_check):
         temp_doo.configuration = standardconf(new_conf)
         position_gagnante_adv = temp_doo.gagnant(temp_doo.trait)
         if not position_gagnante_adv: return False
-        a = new_conf
-    if a:
-        print(Doo.format(standardconf(a)))
     return True
 
 def final_configurations():
@@ -52,26 +49,22 @@ def final_configurations():
     done = []
     to_check = list(futur_confs())
     
-    print(len(to_check))
     while to_check:
         conf = to_check.pop()
         if conf not in done:
             doo.configuration = standardconf(conf)
             to_check2 = futur_confs(doo)
-            win = exist_position_perdante_adv(to_check2)
-            lose = all_position_gagnante_adv(to_check2)
+            win = exist_position_adv_perdante(to_check2)
+            lose = all_position_adv_gagnante(to_check2)
             if win:
                 confs_win[doo.trait].append(conf)
             elif lose:
                 confs_lose[doo.trait].append(conf)
             else:
-                print(len(to_check))
                 for e in to_check2:
                     if e not in done:
                         to_check.append(e)
-                print(len(to_check))
             done.append(conf)
-    print(len(done))
     
     print('nb win noir', len(confs_win[J_ATT]))
     print('nb win blanc', len(confs_win[J_DEF]))
