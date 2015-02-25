@@ -55,17 +55,18 @@ def final_configurations():
         conf = to_check.pop()
         if conf not in done:
             doo.configuration = standardconf(conf)
-            to_check2 = futur_confs(doo)
-            win = exist_position_adv_perdante(to_check2)
-            lose = all_position_adv_gagnante(to_check2)
-            if win:
-                confs_win[doo.trait].append(conf)
-            elif lose:
-                confs_lose[doo.trait].append(conf)
-            else:
-                for e in to_check2:
-                    if e not in done:
-                        to_check.append(e)
+            if not doo.finPartie(conf[1]):  # Si la game gen n'est pas gagnante
+                to_check2 = list(futur_confs(doo))
+                win = exist_position_adv_perdante(to_check2)
+                lose = all_position_adv_gagnante(to_check2)
+                if win:
+                    confs_win[doo.trait].append(conf)
+                elif lose:
+                    confs_lose[doo.trait].append(conf)
+                else:
+                    for e in to_check2:
+                        if e not in done:
+                            to_check.append(e)
             done.append(conf)
 
     print('nb win noir', len(confs_win[J_ATT]))
@@ -94,8 +95,11 @@ def futur_confs(doo=None):
                     temp = board[:]
                     temp[x] = NOIRS
                     temp[y] = BLANCS
+                    if temp.count(BLANCS) == 0:
+                        print(temp)
                     yield temp, J_ATT
                     yield temp, J_DEF
+
 
 if __name__ == '__main__':
     final_configurations()
