@@ -9,6 +9,8 @@ try:
     # changer YYYY par la classe du jeu
     from tp01a import Doo as ze_class
     from tp01a import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
+
+    # NE PAS MODIFIER CE QUI SUIT
 except Exception as _e :
     print(_e)
     exit()
@@ -16,7 +18,6 @@ finally:
     from abstract import Game
         
 
-# NE PAS MODIFIER CE QUI SUIT
 def check_property(prop,letter='E'):
     """ un test valide dans un try/except """
     _rep = ''
@@ -134,13 +135,12 @@ def test_voisinage(cfg,joueur,listCps, err='E'):
 def generate_config():
     """ crée une configuration possible pour débuter phase 2 """
     import random
-    # On pioche au hasard la position du Roi et de 6 défenseurs
-    _l = random.sample( [ _ for _ in range(12) if (_ != 4 and _ != 7)],7)
-    _t = [ NOIRS for _ in range(12) ]
+    # On pioche au hasard la position du Roi et de 3 attaquants
+    _l = random.sample( [ _ for _ in range(12) if (_ != 4 and _ != 7)],4)
+    _t = [ BLANCS for _ in range(12) ] # rempli de défenseurs
     _t[4] = VIDE # Position du Doo
-    _t[7] = BLANCS # Position du premier défenseur
     _t[ _l[0] ] = ROI # Placement du Roi
-    for x in _l[1:]: _t[x] = BLANCS # Placement des défenseurs
+    for x in _l[1:]: _t[x] = NOIRS # Placement des attaquants
     return _t # renvoie le tablier construit
 
 def build_base():
@@ -385,7 +385,17 @@ def test_initialisation():
         test configuration en lecture
     """
     projet = ze_class()
-    return test_etat( projet.configuration )
+    _lstr = test_etat( projet.configuration )
+    if 'E' in _lstr: return _lstr
+    _c0 = [ VIDE, VIDE, VIDE,
+            VIDE, VIDE, VIDE,
+            VIDE, BLANCS, VIDE,
+            VIDE, VIDE, VIDE ]
+    _cfg0 = projet.configuration
+    _lstr += check_property( _cfg0[1] == 1 )
+    _lstr += check_property( _cfg0[0] == _c0 )
+    return _lstr
+
 
 def test_str():
     """ on regarde si on a un affichage """
@@ -436,7 +446,7 @@ def test_gagnant():
     _lstr = ''
     _out = build_base()
     projet = ze_class()
-    for x in _out: # config tes
+    for x in _out: # config test
         projet.configuration = x.cfg
         prop = (projet.gagnant(x.joueur) == x.gagnant)
         _lstr += check_property( prop )
@@ -494,8 +504,7 @@ def test_listeCoups():
                  y in [2,3,5,6,8,9,10,11] and
                  x < y )
         _lstr += check_property( prop )
-        if 'E' in _lstr : 
-            return _lstr
+        if 'E' in _lstr : return _lstr
     
     _out = build_base()
     for x in _out: # config test
@@ -504,21 +513,13 @@ def test_listeCoups():
             prop = (len(projet.listeCoups(x.joueur)) == x.listeCoups)
         else:
             prop = (len(projet.listeCoups(x.joueur)) >= 1)
-        lol = check_property ( prop )
-        if 'E' in lol:
-            print(x)
-            print(str(projet))
-            print("Joueur :", "ATT" if x.joueur == J_ATT else "DEF" )
-            print('Computed :', projet.gagnant(x.joueur))
-            print('Coups :', projet.listeCoups(x.joueur))
-            print("\n" + "*"*80)
-        _lstr += lol
+            
+        _lstr += check_property( prop )
 
         if x.listeCoups != 0 :
             _out = test_voisinage(x.cfg,x.joueur,
                                     projet.listeCoups(x.joueur), err='X')
-            if 'X' in _out :
-                return _lstr+'E'
+            if 'X' in _out : return _lstr+'E'
             _lstr += '.'
 
     # C pour les ATTQ
@@ -603,8 +604,6 @@ def test_joue():
                     prop = ( x.cfg[0].count(VIDE) + _sz ==\
                              _rep[0].count( VIDE ) )
                     _lstr += check_property( prop )
-                    if 'E' in check_property( prop ):
-                        print(x, _choix)
     return _lstr
 
 def test_evaluation():
@@ -678,17 +677,20 @@ def main():
     finally:
         _str += _sep
 
+    _success, _errors = 0,0
     for x in _totest:
         test = 'test_'+x
         try:
-            _str += '\n%s: ' % x + eval(test)()
+            _out = eval(test)()
+            _ok = _out.count('.')
+            _success += _ok
+            _errors += len(_out) - _ok
+            _str += '\n%s: ' % x + _out
         except:
             _str += '\n%s:E' % x
+            _errors += 1
         finally:
             _str += _sep
-            
-    _errors =  _str.count('E')
-    _success = _str.count('.')
 
     return _str,_success,_errors
 
@@ -697,6 +699,6 @@ if __name__ == '__main__' :
     _tot = _s+_e
     _grate = 100 * _s / _tot
     print('TESTS:',_msg,'\ntests reussis: %d/%d (%.2f%%) ' % (_s,_tot,_grate) )
-    print("Normalement 680/680")
+    print("Normalement 659/659")
     print("test_XXX(): permet de tester individuellement la methode XXX")
     print("debug_configuration(): permet de regarder des etats testés")

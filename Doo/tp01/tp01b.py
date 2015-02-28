@@ -214,7 +214,6 @@ def cycling(hist):
     run = True
     while run:
         if (hist[i], hist[i - 1]) == couple:
-            print('Snap ça cycle')
             return True
         i -= 1
         if i < 9 or isinstance(hist[i - 1][1], list):  # si c'est un prise
