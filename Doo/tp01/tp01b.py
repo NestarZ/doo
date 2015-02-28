@@ -198,6 +198,9 @@ def manche(funA=None, funB=None):
         points = 0
     return points, doo.configuration[1], hist
 
+def is_prise(coup):
+    """Détermine si le coup est une prise"""
+    return isinstance(coup[1], list)
 
 def cycling(hist):
     """
@@ -206,18 +209,16 @@ def cycling(hist):
     if len(hist) < 3:
         return False
     couple = (hist[-1], hist[-2])
-    for coup in couple:  # Si l'un des dernier coup est une prise, osef du cycle
-        if isinstance(coup[1], list):  # Si c'est une prise
+    print(couple)
+    if any(is_prise(coup) for coup in couple):
             return False
 
-    i = len(hist) - 2
-    run = True
-    while run:
+    for i in reversed(range(9, len(hist) - 2)):
+        print((hist[i], hist[i - 1]))
         if (hist[i], hist[i - 1]) == couple:
             return True
-        i -= 1
-        if i < 9 or isinstance(hist[i - 1][1], list):  # si c'est un prise
-            run = False
+        if is_prise(hist[i - 1]):
+            return False
     return False
 
 if __name__ == "__main__":
