@@ -175,7 +175,6 @@ def manche(funA=None, funB=None):
     if funB is None:
         funB = First()
     doo = Doo()
-    print(doo)
     jtrait = J_ATT
     hist = []
     while not doo.finPartie(jtrait) and not cycling(hist):
@@ -186,7 +185,6 @@ def manche(funA=None, funB=None):
         hist.append(coup)
         conf = doo.joue(jtrait, coup)
         doo.configuration = conf
-        print(doo)
         jtrait = doo.adversaire(jtrait)
     if doo.gagnant(J_ATT):
         points = 1
@@ -209,18 +207,72 @@ def cycling(hist):
     if len(hist) < 3:
         return False
     couple = (hist[-1], hist[-2])
-    print(couple)
     if any(is_prise(coup) for coup in couple):
             return False
 
     for i in reversed(range(9, len(hist) - 2)):
-        print((hist[i], hist[i - 1]))
         if (hist[i], hist[i - 1]) == couple:
             return True
         if is_prise(hist[i - 1]):
             return False
     return False
 
+def partie(j1, j2, min_manche=1):
+    """
+    Affiche le nom du gagnant, son score et le nombre de manches effectuées
+    Renvoie un dictionnaire dont les index sont les numéros de manche,
+    les valeurs étant la liste des coups au cours de chaque manche.
+    """
+    print("Début d'une partie !")
+    def creation_joueur(n):
+        x = None
+        types = {'1':Humain, '2':Random, '3':First}
+        while x not in types.keys():
+            x = input("J{} - Choisir un joueur : "
+                      "1:Humain, 2:Random, 3:First\n>".format(n))
+        return types[x](input('Entrez un nom:\n>'))
+    jatt = j1 if j1 else creation_joueur(1)
+    jdef = j2 if j2 else creation_joueur(2)
+    points, log, m = {jatt:0, jdef:0}, {jatt:[], jdef:[]}, 1
+    while not (points[jdef] >= 5 and m%2==0) or points[jatt]==points[jdef]:
+        p, foo, log[m] = manche(jatt, jdef)
+        points[jatt] += p
+        jatt, jdef = jdef, jatt
+        m += 1
+    gagnant = max(points, key=points.get)
+    print('Winner: {} ({} points)'.format(gagnant.name, points[gagnant]))
+    print('Manches: {}'.format(m))
+    print("Fin de la partie !")
+    return tuple(points.values()), log
+
+def replay(hist):
+    role = {J_ATT:"J_ATT", J_DEF:"J_DEF"}
+    doo = Doo()
+    jtrait = J_ATT
+    lstr, spl = '', '{}: {} {}\n'
+    lstr += ">>> Phase 1 - Pose\n"
+    for c in hist:
+        if doo.configuration[1] == 8:
+            lstr += ">>> Phase 2 - Duel\n"
+            spl = '{}: {} -> {}\n'
+        conf = doo.joue(jtrait, c)
+        doo.configuration = conf
+        if isinstance(c[0], str):           
+            lstr += spl.format(role[jtrait],
+                               c[0],ordi2humain(c[1]))
+        elif isinstance(c[1], list):
+            cc1 = [ordi2humain(_) for _ in c[1]]
+            lstr += spl.format(role[jtrait],
+                               ordi2humain(c[0]), ' -> '.join(cc1))
+        else:
+            lstr += spl.format(role[jtrait], ordi2humain(c[0]),
+                               ordi2humain(c[1]))
+        jtrait = doo.adversaire(jtrait)
+    is_end = doo.finPartie(jtrait)
+    lstr += "Fin de manche : {}".format(is_end) 
+    print(lstr)
+    return is_end
+           
 if __name__ == "__main__":
     doo = Doo()  # Remplacer Doo par le nom de la classe de votre jeu
     a = Random()
@@ -235,4 +287,6 @@ if __name__ == "__main__":
         print('='*10)
         print(c.name, "en attaque", c(doo, J_ATT))
         print(c.name, "en defense", c(doo, J_DEF))
-    print(manche(Random(), Random()))
+    foo, histp = partie(None, None)
+    replay(histp[1])
+    
