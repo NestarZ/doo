@@ -210,11 +210,11 @@ def cycling(hist):
     if any(is_prise(coup) for coup in couple):
             return False
 
-    for i in reversed(range(9, len(hist) - 2)):
-        if (hist[i], hist[i - 1]) == couple:
-            return True
+    for i in reversed(range(len(hist) - 2)):
         if is_prise(hist[i - 1]):
             return False
+        if (hist[i], hist[i - 1]) == couple:
+            return True
     return False
 
 def partie(j1, j2, min_manche=1):
@@ -223,7 +223,7 @@ def partie(j1, j2, min_manche=1):
     Renvoie un dictionnaire dont les index sont les numéros de manche,
     les valeurs étant la liste des coups au cours de chaque manche.
     """
-    print("Début d'une partie !")
+    # print("Début d'une partie !")
     def creation_joueur(n):
         x = None
         types = {'1':Humain, '2':Random, '3':First}
@@ -231,8 +231,8 @@ def partie(j1, j2, min_manche=1):
             x = input("J{} - Choisir un joueur : "
                       "1:Humain, 2:Random, 3:First\n>".format(n))
         return types[x](input('Entrez un nom:\n>'))
-    jatt = j1 if j1 else creation_joueur(1)
-    jdef = j2 if j2 else creation_joueur(2)
+    jatt = j1 if j1 else Random() # creation_joueur(1)
+    jdef = j2 if j2 else Random()  # creation_joueur(2)
     points, log, m = {jatt:0, jdef:0}, {jatt:[], jdef:[]}, 1
     while not (points[jdef] >= 5 and m%2==0) or points[jatt]==points[jdef]:
         p, foo, log[m] = manche(jatt, jdef)
@@ -240,9 +240,9 @@ def partie(j1, j2, min_manche=1):
         jatt, jdef = jdef, jatt
         m += 1
     gagnant = max(points, key=points.get)
-    print('Winner: {} ({} points)'.format(gagnant.name, points[gagnant]))
-    print('Manches: {}'.format(m))
-    print("Fin de la partie !")
+    # print('Winner: {} ({} points)'.format(gagnant.name, points[gagnant]))
+    # print('Manches: {}'.format(m))
+    # print("Fin de la partie !")
     return tuple(points.values()), log
 
 def replay(hist):
@@ -270,7 +270,7 @@ def replay(hist):
         jtrait = doo.adversaire(jtrait)
     is_end = doo.finPartie(jtrait)
     lstr += "Fin de manche : {}".format(is_end) 
-    print(lstr)
+    # print(lstr)
     return is_end
            
 if __name__ == "__main__":
