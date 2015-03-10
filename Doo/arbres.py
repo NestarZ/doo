@@ -3,17 +3,19 @@
 
 __author__ = "mmc <marc-michel.corsini@u-bordeaux.fr>"
 
-from tp02_abstract import Base, IAPlayer
+from tp02_abstract import Base, IAPlayer, BIGVALUE
 # Remplacer XXXX par le nom du fichier correspondant au tp01b
-from XXXX import VIDE, BLANCS, NOIRS, ROI, J_DEF, J_ATT
-
+from tp01a import VIDE, BLANCS, NOIRS, ROI, J_DEF, J_ATT
+from try_hard2 import exist_position_adv_perdante, all_position_adv_gagnante
+from tp01a import Doo
 import copy
+
+i = 0
 
 class Parcours(Base):
     """ constructeur """
     def __init__(self,unJeu):
         super(Parcours,self).__init__(unJeu)
-
 
     def _minmax(self,joueur,profondeur):
         """ minmax recursif doit renvoyer un coup,une evaluation
@@ -40,16 +42,26 @@ class Parcours(Base):
                 return None,- self.evaluation(joueur)
 
         elif joueur == self.moi :
-            print('MAX')
-            # faire le traitement
+            f = max
+            rep = -BIGVALUE
         else:
-            print("MIN")
-            # faire le traitement
+            f = min
+            rep = BIGVALUE
+
+        bestcoup = None
+        for conf, coup in futur_confs(self.jeu):
+            self.jeu.configuration = conf
+            nrep = f(rep, self._minmax(self.adversaire(joueur), profondeur-1)[1])
+            self.jeu.configuration = _etat_entrant
+            if nrep != rep:
+                rep = nrep
+                bestcoup = coup
+            global i ; i+=1 ; if i%10==0: print(i, profondeur)
 
         # avant de sortir on restaure le bon etat
         self.jeu.configuration = _etat_entrant
         # renvoie le coup et son évaluation
-        return None,0
+        return bestcoup,rep
 
     def _negamax(self,jtrait,profondeur):
         """
@@ -79,7 +91,7 @@ class Parcours(Base):
         else: niveau MIN
         """
         raise NotImplementedError("_alphabeta: AFAIRE")
-    
+
     def positionGagnante(self,jtrait):
         """
            à développer
@@ -108,7 +120,16 @@ class IA(IAPlayer):
             renvoie le coup calculé
         """
         raise NotImplementedError("choixCoup: AFAIRE")
-    
+
+
+def futur_confs(doo):
+    """
+    Génerateur des nouvelles configurations possibles
+    """
+    for coup in doo.listeCoups(doo.trait):
+        conf = doo.joue(doo.trait, coup)
+        yield (conf[0], conf[1]+1), coup
+
 if __name__ == "__main__" :
 
     _lattr = ['_minmax','_minmax_iter',
