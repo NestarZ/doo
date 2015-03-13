@@ -9,7 +9,6 @@ try:
     # changer YYYY par la classe du jeu
     from tp01a import Doo as ze_class
     from tp01a import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
-
     # NE PAS MODIFIER CE QUI SUIT
 except Exception as _e :
     print(_e)
@@ -492,8 +491,8 @@ def test_listeCoups():
     lcps = projet.listeCoups( J_ATT )
     for x,y in lcps:
         prop = ( x in (ROI,NOIRS) and y in [0,2,6,8,9,10,11] )
-        _lstr += check_property( prop )
-        if 'E' in _lstr : return _lstr
+        _lstr += check_property( prop, 'A' )
+        if 'A' == _lstr[-1] : return _lstr
     # B
     _old,_cpt = projet.configuration
     _old[0] = ROI
@@ -503,8 +502,8 @@ def test_listeCoups():
         prop = ( x in (1,2,3,5,6,8,9,10,11) and
                  y in [2,3,5,6,8,9,10,11] and
                  x < y )
-        _lstr += check_property( prop )
-        if 'E' in _lstr : return _lstr
+        _lstr += check_property( prop, 'B' )
+        if 'B' == _lstr[-1] : return _lstr
     
     _out = build_base()
     for x in _out: # config test
@@ -514,12 +513,15 @@ def test_listeCoups():
         else:
             prop = (len(projet.listeCoups(x.joueur)) >= 1)
             
-        _lstr += check_property( prop )
+        _lstr += check_property( prop, 'a' )
+        if 'a' == _lstr[-1]:
+            print(x.cfg,'nb Coups %d' % len(projet.listeCoups(x.joueur)))
+            return _lstr
 
         if x.listeCoups != 0 :
             _out = test_voisinage(x.cfg,x.joueur,
                                     projet.listeCoups(x.joueur), err='X')
-            if 'X' in _out : return _lstr+'E'
+            if 'X' in _out : return _lstr+'X'
             _lstr += '.'
 
     # C pour les ATTQ
@@ -531,7 +533,8 @@ def test_listeCoups():
         projet.configuration = _cfg, 13
         lcps = projet.listeCoups( J_ATT )
         prop = (len( lcps ) == 8)
-        _lstr += check_property( prop )
+        _lstr += check_property( prop, 'c' )
+        if 'c' == _lstr[-1]: return _lstr
         for x,y in lcps :
             if isinstance(y,(list,tuple)):
                 prop = ( x in (0,7) and len(y) == 1 )
@@ -539,7 +542,8 @@ def test_listeCoups():
                 if x == 0: prop = (y == 3)
                 else: prop = ( y in (3,6,8,9,10,11) )
 
-            _lstr += check_property( prop )
+            _lstr += check_property( prop, 'd' )
+            if 'd' == _lstr[-1]: return _lstr
     # C pour les DEFS/ATTQ
     _cfg = [ VIDE, NOIRS, VIDE,
              VIDE, BLANCS, ROI,
@@ -548,15 +552,19 @@ def test_listeCoups():
     projet.configuration = _cfg,14
     lcps = projet.listeCoups( J_DEF )
     prop = len(lcps) == 1
-    _lstr += check_property( prop )
+    _lstr += check_property( prop, '1' )
+    if _lstr[-1] == '1': return _lstr
     for x,y in lcps:
         prop = isinstance(y,(list,tuple)) and len(y) == 3
-        _lstr += check_property( prop )
+        _lstr += check_property( prop, '2' )
+        if _lstr[-1] == '2':
+            print("%s %s" % (x,y) )
+            return _lstr
+        
     projet.configuration = _cfg,13
     lcps = projet.listeCoups( J_ATT )
     prop = len(lcps) == 3+2+5+1
-    _lstr += check_property( prop )
-        
+    _lstr += check_property( prop, '3' )
     return _lstr
 
 def test_joue():
@@ -576,13 +584,13 @@ def test_joue():
             _choix = random.choice( _pot )
             _rep = projet.joue( x.joueur, _choix )
             _lstr += test_etat( _rep, False, 'X' ) # pas de test pose
-            if 'X' in _lstr: return _lstr
+            if 'X' == _lstr[-1]: return _lstr
             prop = (projet.configuration[0] != _rep) # pas d'effet de bord
             _lstr += check_property( prop, '4' )
-            if '4' in _lstr: return _lstr
+            if '4' == _lstr[-1]: return _lstr
             prop = (projet.configuration[1]+1 == _rep[1]) # bon increment
             _lstr += check_property( prop, '5' )
-            if '5' in _lstr: return _lstr
+            if '5' == _lstr[-1]: return _lstr
 
             # On ne vérifie pas que les coups sont justes
             # On vérifie que les effets obtenus sont ceux attendus
@@ -595,15 +603,15 @@ def test_joue():
                     _lstr += check_property( prop )
                     prop = (_rep[0][_choix[0]] == VIDE and
                             _rep[0][_choix[1]] == pion)
-                    _lstr += check_property( prop )
+                    _lstr += check_property( prop, '7' )
                 else: # prise
                     for _ in _choix[1]:
                         prop = (x.cfg[0][_] == VIDE)
-                        _lstr += check_property( prop )
+                        _lstr += check_property( prop, 'p' )
                     _sz = len( _choix[1] )
                     prop = ( x.cfg[0].count(VIDE) + _sz ==\
                              _rep[0].count( VIDE ) )
-                    _lstr += check_property( prop )
+                    _lstr += check_property( prop, 'v' )
     return _lstr
 
 def test_evaluation():

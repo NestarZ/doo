@@ -56,7 +56,66 @@ def test_Player(cls):
             _lstr += check_property( _diag )
 
     return _lstr
-    
+
+def subtest_seq( seq ):
+    """
+        regarde si une séquence de jeu est dans le bon format
+        on ne verifie pas si les positions sont valides, juste
+        si on a bien une liste de coups compatibles avec les
+        contraintes
+    """
+    _lstr = ''
+    prop = isinstance( seq, (tuple,list) )
+    _lstr += check_property( prop, 'C1' )
+    if _lstr[-1] == '1' : return _lstr
+    prop = len(seq) > 7
+    _lstr += check_property( prop, 'C2' )
+    if _lstr[-1] == '2' : return _lstr
+    i = 1
+    for coup in seq :
+        prop = (len(coup) == 2 )
+        _lstr += check_property( prop, 'C3' )
+        if _lstr[-1] == '3' : return _lstr
+        x,y = coup
+        if i < 8 : # Pose
+            _possibles = list( range(12) )
+            _possibles.remove(4)
+            _possibles.remove(7)
+            
+            if i%2 == 1 : # J_ATT
+                prop = (x in (ROI,NOIRS) and y in _possibles)
+                _lstr += check_property( prop, 'C4' )
+                if _lstr[-1] == '4' :
+                    return _lstr
+            else:
+                prop = (x in _possibles and y in _possibles and x < y)
+                _lstr += check_property( prop, 'C5' )
+                if _lstr[-1] == '5' : return _lstr
+
+        else: # Duel
+            prop = x in range(12)
+            prop = prop and isinstance(y, (int,list,tuple) )
+            _lstr += check_property( prop, 'C6' )
+            if _lstr[-1] == '6' : return _lstr
+            if isinstance(y,int):
+                prop = y in range(12)
+            else:
+                prop = True
+                for _ in y: prop = prop and _ in range(12)
+            _lstr += check_property( prop, 'C7' )
+            if _lstr[-1] == '7' : return _lstr
+            
+            
+            if i%2 == 1 and not isinstance(y,int): # J_ATT
+                prop = len(y) == 1
+            else:
+                prop = True # pas de contraintes pour J_DEF
+
+            _lstr += check_property( prop, 'C8' )
+            if _lstr[-1] == '8' : return _lstr
+        i += 1 # On passe au coup suivant
+    return _lstr
+
 #------ les test_XXX() -------------------------------------------------#
 
 def test_First():
@@ -125,18 +184,20 @@ def test_manche():
         if 'E' in _lstr : return _lstr[:-1]+"%s" % _args.index(x)
 
     # Maintenant on étudie les valeurs renvoyées
-    _lstr += check_property( isinstance(_a[0],int), '1' )
+    _lstr += check_property( isinstance(_a[0],int), 'M1' )
     if '1' == _lstr[-1] : return _lstr
-    _lstr += check_property( isinstance(_a[1],int), '2' )
+    _lstr += check_property( isinstance(_a[1],int), 'M2' )
     if '2' == _lstr[-1] : return _lstr
-    _lstr += check_property( isinstance(_a[2],(list,tuple)), '3' )
+    _lstr += check_property( isinstance(_a[2],(list,tuple)), 'M3' )
     if '3' == _lstr[-1] : return _lstr
-    _lstr += check_property( 0 <= _a[0] <= 3, '4')
+    _lstr += check_property( 0 <= _a[0] <= 3, 'M4')
     if '4' == _lstr[-1] : return _lstr
-    _lstr += check_property( 8 <= _a[1], '5' )
+    _lstr += check_property( 8 <= _a[1], 'M5' )
     if '5' == _lstr[-1] : return _lstr
     # Le compteur indique le prochain coup à jouer, pas le nombre joué
-    _lstr += check_property( _a[1] == len(_a[2])+1, '6' )
+    _lstr += check_property( _a[1] == len(_a[2])+1, 'M6' )
+    if '6' == _lstr[-1] : return _lstr
+    _lstr += subtest_seq( _a[2] ) # controle l'historique
     return _lstr
 
 def test_partie():
@@ -151,21 +212,29 @@ def test_partie():
         return _lstr+'A'
 
     # Maintenant on étudie les valeurs renvoyées
-    _lstr += check_property( isinstance( _a, (tuple,list)), '1')
+    _lstr += check_property( isinstance( _a, (tuple,list)), 'P1')
     if '1' == _lstr[-1]: return _lstr
-    _lstr += check_property( len(_a) == 2, '2')
+    _lstr += check_property( len(_a) == 2, 'P2')
     if '2' == _lstr[-1]: return _lstr
-    _lstr += check_property( isinstance(_a[0], (tuple,list)), '3')
+    _lstr += check_property( isinstance(_a[0], (tuple,list)), 'P3')
     if '3' == _lstr[-1]: return _lstr
-    _lstr += check_property( len(_a[0]) == 2, '4')
+    _lstr += check_property( len(_a[0]) == 2, 'P4')
     if '4' == _lstr[-1]: return _lstr
     _lstr += check_property( isinstance( _a[0][0], int ) and
-                             isinstance( _a[0][1], int ), '5')
+                             isinstance( _a[0][1], int ), 'P5')
     if '5' == _lstr[-1]: return _lstr
-    _lstr += check_property( _a[0][0] != _a[0][1], '6')
-    if '6' == _lstr[-1]: return _lstr
-    _lstr += check_property( max(* _a[0]) >= 5, '7')
-    if '7' == _lstr[-1]: return _lstr
+    ## P6 & P7 : validation impossible pour le moment
+    ## _lstr += check_property( _a[0][0] != _a[0][1], 'P6')
+    ## if '6' == _lstr[-1]: return _lstr
+    ## _lstr += check_property( max(* _a[0]) >= 5, 'P7')
+    ## if '7' == _lstr[-1]: return _lstr
+    _lstr += check_property( isinstance( _a[1], dict ), 'Pa')
+    if 'a' == _lstr[-1]: return _lstr
+    _lstr += check_property( len( _a[1] ) %2 == 0, 'Pb')
+    if 'b' == _lstr[-1]: return _lstr
+    _lstr += check_property( len( _a[1] ) > 3, 'Pc')
+    if 'c' == _lstr[-1]: return _lstr
+    
     return _lstr
 
 def test_replay():

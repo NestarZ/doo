@@ -6,7 +6,6 @@ __author__ = "mmc <marc-michel.corsini@u-bordeaux.fr>"
 from tp02_abstract import Base, IAPlayer, BIGVALUE
 # Remplacer XXXX par le nom du fichier correspondant au tp01b
 from tp01a import VIDE, BLANCS, NOIRS, ROI, J_DEF, J_ATT
-from try_hard2 import exist_position_adv_perdante, all_position_adv_gagnante
 from tp01a import Doo
 import copy
 
