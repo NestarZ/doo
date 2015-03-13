@@ -41,7 +41,7 @@ class Parcours(Base):
             else: # c'est pas mon point de vue
                 return None,- self.evaluation(joueur)
 
-        elif joueur == self.moi :
+        elif self.moi == joueur :
             f = max
             rep = -BIGVALUE
         else:
@@ -56,7 +56,6 @@ class Parcours(Base):
             if nrep != rep:
                 rep = nrep
                 bestcoup = coup
-            global i ; i+=1 ; if i%10==0: print(i, profondeur)
 
         # avant de sortir on restaure le bon etat
         self.jeu.configuration = _etat_entrant
@@ -75,9 +74,19 @@ class Parcours(Base):
 
         sont disponibles
         """
-        raise NotImplementedError("_negamax: AFAIRE")
+        # On sauvegarde l'etat dans lequel on entre
+        _etat_entrant = copy.deepcopy(self.jeu.configuration)
+        
+        if self.finPartie(jtrait) or profondeur == 0 :
+            return None,jtrait*self.evaluation(jtrait)
 
-
+        rep = 0
+        for conf, coup in futur_confs(self.jeu):
+            self.jeu.configuration = conf
+            rep = -max(-rep, -self._negamax(-jtrait, profondeur-1)[1])
+            self.jeu.configuration = _etat_entrant
+        return coup, rep
+    
     def _alphabeta(self,jtrait,alpha,beta,profondeur):
         """
         self.jeu.configuration la configuration de jeu a analyser
@@ -96,14 +105,29 @@ class Parcours(Base):
         """
            à développer
         """
-        raise NotImplementedError("positionGagnante: coup U { None } x Bool")
+        _etat_entrant = self.jeu.configuration
+        for conf, coup in futur_confs(self.jeu):
+            self.jeu.configuration = standardconf(conf)
+            position_perdante_adv = self.jeu.perdant(jtrait)
+            if position_perdante_adv:
+                self.jeu.configuration = _etat_entrant
+                return coup, True
+        self.jeu.configuration = _etat_entrant
+        return None, False
 
     def positionPerdante(self,jtrait):
         """
            à développer
         """
-        raise NotImplementedError("positionPerdante: Bool")
-
+        _etat_entrant = self.jeu.configuration
+        for conf, coup in futur_confs(self.jeu):
+            self.jeu.configuration = standardconf(conf)
+            position_gagnante_adv = self.jeu.gagnant(jtrait)
+            if not position_gagnante_adv:
+                self.jeu.configuration = _etat_entrant
+                return False
+        self.jeu.configuration = _etat_entrant
+        return True
 
 
 class IA(IAPlayer):
@@ -119,8 +143,10 @@ class IA(IAPlayer):
             appelle minmax avec les bons paramètres
             renvoie le coup calculé
         """
-        raise NotImplementedError("choixCoup: AFAIRE")
-
+        par = Parcours(unJeu)
+        bestcoup, eval = par.minmax(joueur, self.niveau, self.code)
+        print(bestcoup, eval)
+        return bestcoup
 
 def futur_confs(doo):
     """

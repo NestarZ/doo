@@ -9,7 +9,7 @@ sur le jeu de Doo
 """
 
 # changer XXXX par le nom du fichier correspondant à tp01b
-from XXXX import manche, Human
+from tp01b import manche, Human
 from arbres import Parcours, IA
 
 def main(force=3,code=0):
@@ -23,8 +23,9 @@ def main(force=3,code=0):
     #jB = Human('B')
     print(jA,"force %d" % jA.niveau)
     print( manche(jA,jB) )
+    
 
 if __name__ == "__main__" :
     # force: la profondeur, code: l'algorithme
-    main(force=0,code=0)
+    main(force=4,code=2)
 

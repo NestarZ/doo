@@ -83,7 +83,7 @@ class Random(Player):
         return None if not lcoups else random.choice(lcoups)
 
 
-class Humain(Player):
+class Human(Player):
     def __init__(self, nickname="MamaDOO-Human"):
         self.name = nickname
 
@@ -226,10 +226,10 @@ def partie(j1, j2, min_manche=1):
     # print("Début d'une partie !")
     def creation_joueur(n):
         x = None
-        types = {'1':Humain, '2':Random, '3':First}
+        types = {'1':Human, '2':Random, '3':First}
         while x not in types.keys():
             x = input("J{} - Choisir un joueur : "
-                      "1:Humain, 2:Random, 3:First\n>".format(n))
+                      "1:Human, 2:Random, 3:First\n>".format(n))
         return types[x](input('Entrez un nom:\n>'))
     jatt = j1 if j1 else Random() # creation_joueur(1)
     jdef = j2 if j2 else Random()  # creation_joueur(2)
@@ -277,7 +277,7 @@ if __name__ == "__main__":
     doo = Doo()  # Remplacer Doo par le nom de la classe de votre jeu
     a = Random()
     b = First()
-    c = Humain()
+    c = Human()
     if False:  # NEVER
         print(a.name, "en attaque", a(doo, J_ATT))
         print(a.name, "en defense", a(doo, J_DEF))
