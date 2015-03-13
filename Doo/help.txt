@@ -1,0 +1,30 @@
+>>> l = [1,2,3], 7
+>>> x,y = l
+>>> print(x,y,l)
+[1, 2, 3] 7 ([1, 2, 3], 7)
+>>> x[2] = 142
+>>> print(x,y,l)
+[1, 2, 142] 7 ([1, 2, 142], 7)
+>>> y = y+1
+>>> print(x,y,l)
+[1, 2, 142] 8 ([1, 2, 142], 7)
+>>> import copy
+>>> a,b = copy.deepcopy( l )
+>>> print(a,b,l)
+[1, 2, 142] 7 ([1, 2, 142], 7)
+>>> a[2] = 2142
+>>> print(a,b,l)
+[1, 2, 2142] 7 ([1, 2, 142], 7)
+>>> 
+
+Donc soit c'est le getter de configuration qui renvoie une
+copie de l'information
+@property
+def configuration(self):
+    import copy
+    return copy.deepcopy( ... )
+
+Soit dans joue(self,joueur,coup)
+vous effectuez la copie de configuration avant toute chose
+
+
