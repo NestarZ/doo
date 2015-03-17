@@ -45,7 +45,7 @@ class Base(object):
                     raise Exception("%s unknown" % attr)
             self.__game = unJeu
 
-    def minmax(self,joueur,profondeur,code=0):
+    def minmax(self,joueur,profondeur,code=0, evaluation=None):
         """ effectue le calcul minmax
         en fonction de code:
             - 0 : _minmax methode recursive # Obligatoire
@@ -58,18 +58,18 @@ class Base(object):
         """
         self.__player = joueur
         if code > 5 or code <= 0 : # si on est hors de l'intervalle
-            return self._minmax(joueur,profondeur)
+            return self._minmax(joueur, profondeur, evaluation)
         if code == 1 :
-            return self._minmax_iter(joueur,profondeur)
+            return self._minmax_iter(joueur,profondeur, evaluation)
         if code == 2 :
-            return self._negamax(joueur,profondeur)
+            return self._negamax(joueur,profondeur, evaluation)
         if code == 3 :
-            return self._negamax_iter(joueur,profondeur)
+            return self._negamax_iter(joueur,profondeur, evaluation)
         if code == 4 :
             return self._alphabeta(joueur,-BIGVALUE,BIGVALUE,profondeur)
         if code == 5 :
             return self._alphabeta_negamax(joueur,-BIGVALUE,
-                                           BIGVALUE,profondeur)
+                                           BIGVALUE,profondeur, evaluation)
 
     def _minmax(self,*args,**kwargs):
         """
@@ -152,12 +152,14 @@ class IAPlayer(Player):
     4 : alphabeta approche minmax, récursif
     5 : alphabeta approche negamax, récursif
     """
-    def __init__(self,lvl,code=0):
+    def __init__(self,lvl,code=0, evaluation=None):
         self.nom = "zeOrdinator"
         self.__niveau = 1 # initialisation de la profondeur de calcul
         self.__code = 0 # initialisation du type d'algo de parcours
         self.niveau = lvl
         self.code = code
+        self.evaluation = evaluation
+        print(evaluation)
 
     @property
     def niveau(self): return self.__niveau

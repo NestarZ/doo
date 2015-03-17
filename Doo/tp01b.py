@@ -194,6 +194,7 @@ def manche(funA=None, funB=None):
             points += 1
     else:
         points = 0
+    print(doo)
     return points, doo.configuration[1], hist
 
 def is_prise(coup):
@@ -256,6 +257,7 @@ def replay(hist):
             lstr += ">>> Phase 2 - Duel\n"
             spl = '{}: {} -> {}\n'
         conf = doo.joue(jtrait, c)
+        lstr += str(doo) + '\n\n'
         doo.configuration = conf
         if isinstance(c[0], str):           
             lstr += spl.format(role[jtrait],
@@ -270,7 +272,7 @@ def replay(hist):
         jtrait = doo.adversaire(jtrait)
     is_end = doo.finPartie(jtrait)
     lstr += "Fin de manche : {}".format(is_end) 
-    # print(lstr)
+    print(lstr)
     return is_end
            
 if __name__ == "__main__":

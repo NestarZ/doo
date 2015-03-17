@@ -16,7 +16,7 @@ class Parcours(Base):
     def __init__(self,unJeu):
         super(Parcours,self).__init__(unJeu)
 
-    def _minmax(self,joueur,profondeur):
+    def _minmax(self,joueur,profondeur, evaluation):
         """ minmax recursif doit renvoyer un coup,une evaluation
         self.moi permet de connaitre le joueur de reference
         si self.moi == joueur : on est sur niveau MAX
@@ -33,12 +33,11 @@ class Parcours(Base):
 
         # On sauvegarde l'etat dans lequel on entre
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
-
         if self.finPartie(joueur) or profondeur == 0 :
             if self.moi == joueur :
-                return None,self.evaluation(joueur)
+                return None, evaluation(self.jeu, joueur)
             else: # c'est pas mon point de vue
-                return None,- self.evaluation(joueur)
+                return None, -evaluation(self.jeu, joueur)
 
         elif self.moi == joueur :
             f = max
@@ -50,7 +49,7 @@ class Parcours(Base):
         bestcoup = None
         for conf, coup in futur_confs(self.jeu):
             self.jeu.configuration = conf
-            nrep = f(rep, self._minmax(self.adversaire(joueur), profondeur-1)[1])
+            nrep = f(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
             self.jeu.configuration = _etat_entrant
             if nrep != rep:
                 rep = nrep
@@ -131,8 +130,8 @@ class Parcours(Base):
 
 class IA(IAPlayer):
     """ seule choixCoup est à modifier """
-    def __init__(self,lvl,code=0,name=None):
-        super(IA,self).__init__(lvl,code)
+    def __init__(self,lvl,code=0, evaluation=None, name=None):
+        super(IA,self).__init__(lvl,code, evaluation)
         if name is not None: self.nom = name
 
     def choixCoup(self,unJeu,joueur):
@@ -143,7 +142,7 @@ class IA(IAPlayer):
             renvoie le coup calculé
         """
         par = Parcours(unJeu)
-        bestcoup, eval = par.minmax(joueur, self.niveau, self.code)
+        bestcoup, eval = par.minmax(joueur, self.niveau, self.code, self.evaluation)
         print(bestcoup, eval)
         return bestcoup
 
@@ -153,7 +152,7 @@ def futur_confs(doo):
     """
     for coup in doo.listeCoups(doo.trait):
         conf = doo.joue(doo.trait, coup)
-        yield (conf[0], conf[1]+1), coup
+        yield (conf[0], conf[1]), coup
 
 if __name__ == "__main__" :
 

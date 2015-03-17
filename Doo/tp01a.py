@@ -257,6 +257,30 @@ class Doo(Game):
         """
         evalue numeriquement la situation dans lequel se trouve le joueur
         """
-        if self.perdant(joueur): return -10
-        if self.gagnant(joueur): return 10
-        return 0
+        if self.perdant(joueur): return -100
+        if self.gagnant(joueur): return 100
+        if self.pose:
+            score = 0
+            for i, pion in enumerate(self.board):
+                if pion == NOIRS or pion == ROI:
+                    score -= self._distance_from_doo(i)
+            return score
+        else:
+            nb_blancs = self.board.count(BLANCS)
+            nb_noirs = 0
+            smallest_distance = float("inf")
+            for i, pion in enumerate(self.board):
+                if pion == NOIRS or pion == ROI:
+                    nb_noirs += 1
+                    smallest_distance = min(smallest_distance, self._distance_from_doo(i))
+            return - (smallest_distance)**2 - nb_blancs
+
+    def _distance_from_doo(self, i):
+        if i == DOO:
+            return 0
+        if i <= 8:
+            return 1
+        else:
+            return 2
+
+
