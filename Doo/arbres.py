@@ -143,7 +143,6 @@ class IA(IAPlayer):
         """
         par = Parcours(unJeu)
         bestcoup, eval = par.minmax(joueur, self.niveau, self.code, self.evaluation)
-        print(bestcoup, eval)
         return bestcoup
 
 def futur_confs(doo):
