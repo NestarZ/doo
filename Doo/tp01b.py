@@ -194,7 +194,9 @@ def manche(funA=None, funB=None):
             points += 1
     else:
         points = 0
-    print(doo)
+    if cycling(hist):
+        print("cycling !")
+    #print(doo)
     return points, doo.configuration[1], hist
 
 def is_prise(coup):
