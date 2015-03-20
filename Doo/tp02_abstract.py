@@ -66,7 +66,7 @@ class Base(object):
         if code == 3 :
             return self._negamax_iter(joueur,profondeur, evaluation)
         if code == 4 :
-            return self._alphabeta(joueur,-BIGVALUE,BIGVALUE,profondeur)
+            return self._alphabeta(joueur,-BIGVALUE,BIGVALUE,profondeur, evaluation)
         if code == 5 :
             return self._alphabeta_negamax(joueur,-BIGVALUE,
                                            BIGVALUE,profondeur, evaluation)

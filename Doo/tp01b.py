@@ -104,6 +104,7 @@ class Human(Player):
         if not lcoups:
             return None
         while not valid:
+            print(game)
             pose = game.configuration[1] < 8
             if pose and joueur == J_ATT:
                 coup = self._ask_pose_att()

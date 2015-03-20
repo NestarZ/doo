@@ -34,10 +34,7 @@ class Parcours(Base):
         # On sauvegarde l'etat dans lequel on entre
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         if self.finPartie(joueur) or profondeur == 0 :
-            if self.moi == joueur :
-                return None, evaluation(self.jeu, joueur)
-            else: # c'est pas mon point de vue
-                return None, -evaluation(self.jeu, joueur)
+            return None, evaluation(self.jeu, self.moi)
 
         elif self.moi == joueur :
             f = max
@@ -60,7 +57,7 @@ class Parcours(Base):
         # renvoie le coup et son évaluation
         return bestcoup,rep
 
-    def _negamax(self,jtrait,profondeur):
+    def _negamax(self,jtrait,profondeur, evaluation=None):
         """
         version recursive du negamax :
 
@@ -72,20 +69,26 @@ class Parcours(Base):
 
         sont disponibles
         """
+        if not evaluation:
+            evaluation = Doo.evaluation
         # On sauvegarde l'etat dans lequel on entre
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         
         if self.finPartie(jtrait) or profondeur == 0 :
-            return None,jtrait*self.evaluation(jtrait)
+            if jtrait == J_ATT:
+                signe = 1
+            else:
+                signe = -1
+            return None, signe*evaluation(self.jeu, jtrait)
 
-        rep = 0
+        rep = -BIGVALUE
         for conf, coup in futur_confs(self.jeu):
             self.jeu.configuration = conf
-            rep = -max(-rep, -self._negamax(-jtrait, profondeur-1)[1])
+            rep = max(rep, -self._negamax(self.adversaire(jtrait), profondeur-1)[1])
             self.jeu.configuration = _etat_entrant
         return coup, rep
     
-    def _alphabeta(self,jtrait,alpha,beta,profondeur):
+    def _alphabeta(self,jtrait,alpha,beta,profondeur, evaluation=None):
         """
         self.jeu.configuration la configuration de jeu a analyser
         jtrait le joueur ayant le trait pour cet etat
@@ -97,7 +100,25 @@ class Parcours(Base):
         if self.moi == jtrait : niveau MAX
         else: niveau MIN
         """
-        raise NotImplementedError("_alphabeta: AFAIRE")
+        if not evaluation:
+            evaluation = Doo.evaluation
+        _etat_entrant = copy.deepcopy(self.jeu.configuration)
+
+        if profondeur == 0 or self.finPartie(jtrait):
+            if jtrait == J_ATT:
+                signe = 1
+            else:
+                signe = -1
+            return None, signe*evaluation(self.jeu, jtrait)
+
+        best = -BIGVALUE
+        for conf, coup in futur_confs(self.jeu):
+            self.jeu.configuration = conf
+            rep = max(best, -self._alphabeta(self.adversaire(jtrait), -beta, -alpha, profondeur - 1, evaluation)[1]) 
+            self.jeu.configuration = _etat_entrant
+            if alpha >= beta:
+                break
+        return coup, best
 
     def positionGagnante(self,jtrait):
         """

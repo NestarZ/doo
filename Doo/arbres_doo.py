@@ -24,19 +24,22 @@ def play_manche(eval1, eval2, force=3,code=0):
     """
     jA = IA(force,code, eval1)
     jB = IA(force, code, eval2) # joueur par défaut
+    jB = Human()
     #B = Human('B')
     print(jA,"force %d" % jA.niveau)
     score, tour, hist = manche(jA,jB)
     # replay(hist)
-    return score
+    return score, hist
 
 
 def main():
     evaluations = [evaluation1, evaluation2, evaluation3, dummy]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
+    replay(play_manche(evaluation1, evaluation2)[1])
+    return;
     for eval1, eval2 in itertools.permutations(evaluations, 2):  # génère toutes les combinaisons d'évaluations, sans self vs self
-        score = play_manche(eval1, eval2, force=4)
+        score = play_manche(eval1, eval2, force=3, code=4)
         if score > 0:
             score_att[eval1] += score
         else:
