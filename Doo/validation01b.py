@@ -6,7 +6,8 @@ __author__ = "mmc <marc-michel.corsini@u-bordeaux.fr>"
 
 try:
     # changer XXXX par le nom de votre fichier
-    import tp01b as tp
+    import XXXX as tp
+    # import tp01b as tp
     # NE PAS MODIFIER CE QUI SUIT
 
 except Exception as _e :
@@ -137,15 +138,17 @@ def test_cycling():
     """ permet de tester la détection d'un cycle """
     _datas = ( [ (1,2), (2,3), (3,1), (4,2), (1,2), (2,3) ],
                [ (1,2), (2,3), (3,[1]), (4,2), (1,2), (2,3) ],
+	       [ (1,[2]), (2,3), (3,1), (4,2), (1,[2]), (2,3) ],
+	       [ (1,2), (2,[3]), (3,1), (4,2), (1,[2]), (2,[3]) ],
                )
-    _expect = (True, False)
+    _expect = (True, False, False, False)
     _head = ( [], [ (i,j) for i in range(3) for j in range(2) ],
               [ (i,j) for i in range(3) for j in range(3) ] )
     _lstr =''
     _args = inspect.getfullargspec( tp.cycling ).args
     _lstr += check_property( len(_args) == 1 )
     for x in _head:
-        for i in range(2) :
+        for i in range(4) :
             _lstr += check_property( tp.cycling( x+_datas[i] ) == _expect[i] )
         prop = tp.cycling(x+_datas[0]+_datas[1]) == _expect[1]
         _lstr += check_property( prop )
