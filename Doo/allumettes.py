@@ -98,7 +98,7 @@ class allumettes(Game):
 
     def finPartie(self,joueur):
         """ renvoie True si la partie est terminee """
-        return self.perdant(joueur) or self.perdant(self.adversaire(joueur))
+        return self.perdant(joueur) or self.gagnant(joueur)
 
     def listeCoups(self,joueur):
         """ renvoie la liste des coups autorises pour le joueur """
