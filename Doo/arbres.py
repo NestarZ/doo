@@ -32,25 +32,32 @@ class Parcours(Base):
         """
 
         # On sauvegarde l'etat dans lequel on entre
+        if not evaluation:
+            evaluation = self.jeu.evaluation.__func__
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         if self.finPartie(joueur) or profondeur == 0 :
             return None, evaluation(self.jeu, self.moi)
 
-        elif self.moi == joueur :
-            f = max
-            rep = -BIGVALUE
-        else:
-            f = min
-            rep = BIGVALUE
-
         bestcoup = None
-        for conf, coup in futur_confs(self.jeu):
-            self.jeu.configuration = conf
-            nrep = f(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
-            self.jeu.configuration = _etat_entrant
-            if nrep != rep:
-                rep = nrep
-                bestcoup = coup
+
+        if self.moi == joueur :
+            rep = -BIGVALUE
+            for conf, coup in futur_confs(self.jeu):
+                self.jeu.configuration = conf
+                nrep = max(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
+                self.jeu.configuration = _etat_entrant
+                if nrep > rep:
+                    rep = nrep
+                    bestcoup = coup
+        else:
+            rep = +BIGVALUE
+            for conf, coup in futur_confs(self.jeu):
+                self.jeu.configuration = conf
+                nrep = min(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
+                self.jeu.configuration = _etat_entrant
+                if nrep < rep:
+                    rep = nrep
+                    bestcoup = coup
 
         # avant de sortir on restaure le bon etat
         self.jeu.configuration = _etat_entrant
@@ -170,8 +177,9 @@ def futur_confs(doo):
     """
     Génerateur des nouvelles configurations possibles
     """
-    for coup in doo.listeCoups(doo.trait):
-        conf = doo.joue(doo.trait, coup)
+    trait = J_ATT if doo.configuration[1]%2 == 1 else J_DEF
+    for coup in doo.listeCoups(trait):
+        conf = doo.joue(trait, coup)
         yield (conf[0], conf[1]), coup
 
 if __name__ == "__main__" :
