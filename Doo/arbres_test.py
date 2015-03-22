@@ -67,8 +67,8 @@ def main(force=3,code=0):
     par defaut : une partie humain contre
     minmax recursif (code 0) niveau 3 (force 3)
     """
-    jA = ia(force, code, "Roger")
-    jB = ia(force,code, "Albert")
+    jA = humain('TRAUL ECOFFEY')
+    jB = ia(force, 3, "Albert")
     print(jB,"force %d" % jB.niveau)
     print( partie(jA,jB) )
 

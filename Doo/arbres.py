@@ -82,8 +82,9 @@ class Parcours(Base):
 
         sont disponibles
         """
+        print('coucou')
         if not evaluation:
-            evaluation = Doo.evaluation
+            evaluation = self.jeu.evaluation.__func__
         # On sauvegarde l'etat dans lequel on entre
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         
