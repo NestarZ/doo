@@ -198,7 +198,7 @@ def partie(funA=None,funB=None):
         _jtrait = unJeu.adversaire(_jtrait)
 
     # quand on sort le perdant est celui qui doit joueur donc
-    _gagnant = _jtrait
+    _gagnant = unJeu.adversaire(_jtrait)
     print("%s a gagne en %d tours" % (joueurs[_gagnant].nom,
                                       unJeu.configuration[1]-1))
 
