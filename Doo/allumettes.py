@@ -93,7 +93,7 @@ class allumettes(Game):
 
     def perdant(self,joueur):
         """ renvoie True si l'etat est une defaite pour le joueur """
-        return (self.configuration[0] == 0 and (self.configuration[1])%2 == joueur)
+        return (self.configuration[0] == 0)
 
 
     def finPartie(self,joueur):

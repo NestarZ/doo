@@ -9,12 +9,18 @@ from tp01a import VIDE, BLANCS, NOIRS, ROI, J_DEF, J_ATT
 from tp01a import Doo
 import copy
 
+INDECIS = 0
+POS_WIN = 1
+POS_LOSE = 2
+POS_OSEF = 3
+
 i = 0
 
 class Parcours(Base):
     """ constructeur """
     def __init__(self,unJeu):
         super(Parcours,self).__init__(unJeu)
+        self.dico_try_hard = {}
 
     def _minmax(self,joueur,profondeur, evaluation):
         """ minmax recursif doit renvoyer un coup,une evaluation
@@ -36,7 +42,10 @@ class Parcours(Base):
             evaluation = self.jeu.evaluation.__func__
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         if self.finPartie(joueur) or profondeur == 0 :
-            return None, evaluation(self.jeu, self.moi)
+            if self.moi == joueur:
+                return None, evaluation(self.jeu, self.moi)
+            else:
+                return None, -evaluation(self.jeu, self.moi)
 
         bestcoup = None
 
@@ -131,30 +140,63 @@ class Parcours(Base):
         """
            à développer
         """
+        identifiant = self.create_id(self.jeu.configuration, jtrait)
+        if identifiant in self.dico_try_hard:
+            if self.dico_try_hard[identifiant][0] == INDECIS:
+                return None, True  # Opération identité du all de positionPerdante --> On ignore le cas
+            return (self.dico_try_hard[identifiant][0] == POS_WIN, self.dico_try_hard[identifiant][1])
+
+        self.dico_try_hard[identifiant] = (INDECIS, None)
+        if self.finPartie(jtrait):
+            self.dico_try_hard[identifiant] = (POS_WIN, None) if self.jeu.gagnant(jtrait) else (POS_LOSE, None)
+            return None, self.jeu.gagnant(jtrait)
+
         _etat_entrant = self.jeu.configuration
         for conf, coup in futur_confs(self.jeu):
-            self.jeu.configuration = standardconf(conf)
-            position_perdante_adv = self.jeu.perdant(jtrait)
+            self.jeu.configuration = conf
+            position_perdante_adv = self.positionPerdante(self.adversaire(jtrait))
             if position_perdante_adv:
                 self.jeu.configuration = _etat_entrant
+                self.dico_try_hard[identifiant] = (POS_WIN, coup)
                 return coup, True
-        self.jeu.configuration = _etat_entrant
+            self.jeu.configuration = _etat_entrant
+        self.dico_try_hard[identifiant] = (POS_OSEF, None)
         return None, False
 
     def positionPerdante(self,jtrait):
         """
            à développer
         """
+        identifiant = self.create_id(self.jeu.configuration, jtrait)
+        if identifiant in self.dico_try_hard:
+            if self.dico_try_hard[identifiant][0] == INDECIS:
+                return False  # Opération identité du any de positionGagnante --> On ignore le cas
+            return self.dico_try_hard[identifiant][0] == POS_LOSE
+
+        if self.finPartie(jtrait):
+            self.dico_try_hard[identifiant] = (POS_LOSE, None) if self.jeu.perdant(jtrait) else (POS_WIN, None)
+            return self.jeu.perdant(jtrait)
         _etat_entrant = self.jeu.configuration
         for conf, coup in futur_confs(self.jeu):
-            self.jeu.configuration = standardconf(conf)
-            position_gagnante_adv = self.jeu.gagnant(jtrait)
+            self.jeu.configuration = conf
+            position_gagnante_adv = self.positionGagnante(self.adversaire(jtrait))[1]
             if not position_gagnante_adv:
                 self.jeu.configuration = _etat_entrant
+                self.dico_try_hard[identifiant] = (POS_OSEF, None)
                 return False
-        self.jeu.configuration = _etat_entrant
+            self.jeu.configuration = _etat_entrant
+
+        self.dico_try_hard[identifiant] = (POS_LOSE, None)
         return True
 
+    def create_id(self, conf, jtrait):
+        dico_pions = {VIDE: 13, ROI: 17, NOIRS: 19, BLANCS: 23}
+        identifiant = 0
+        for i, case in enumerate(conf[0]):
+            identifiant ^= dico_pions[case] * (i+1)
+        if jtrait == J_ATT:
+            identifiant ^= 898  # max id = 276 pour les cases
+        return identifiant
 
 class IA(IAPlayer):
     """ seule choixCoup est à modifier """
@@ -183,6 +225,17 @@ def futur_confs(doo):
         yield (conf[0], conf[1]), coup
 
 if __name__ == "__main__" :
+
+    doo = Doo()
+    doo.configuration = [BLANCS, NOIRS, VIDE,
+                         NOIRS, VIDE, BLANCS,
+                         VIDE, BLANCS, VIDE,
+                         NOIRS, BLANCS, VIDE], 11
+    par = Parcours(doo)
+    print(par.positionGagnante(J_ATT))
+    doo.configuration = doo.configuration[0], 10
+    print(par.positionPerdante(J_DEF))
+
 
     _lattr = ['_minmax','_minmax_iter',
               '_negamax', '_negamax_iter',
