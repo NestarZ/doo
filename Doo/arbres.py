@@ -9,18 +9,15 @@ from tp01a import VIDE, BLANCS, NOIRS, ROI, J_DEF, J_ATT
 from tp01a import Doo
 import copy
 
-INDECIS = 0
-POS_WIN = 1
-POS_LOSE = 2
-POS_OSEF = 3
+INDECIS = object()
 
-i = 0
 
 class Parcours(Base):
     """ constructeur """
     def __init__(self,unJeu):
         super(Parcours,self).__init__(unJeu)
-        self.dico_try_hard = {}
+        self.dico_win = {}
+        self.dico_lose = {}
 
     def _minmax(self,joueur,profondeur, evaluation):
         """ minmax recursif doit renvoyer un coup,une evaluation
@@ -141,14 +138,14 @@ class Parcours(Base):
            à développer
         """
         identifiant = self.create_id(self.jeu.configuration, jtrait)
-        if identifiant in self.dico_try_hard:
-            if self.dico_try_hard[identifiant][0] == INDECIS:
+        if identifiant in self.dico_win:
+            if self.dico_win[identifiant][0] == INDECIS:
                 return None, True  # Opération identité du all de positionPerdante --> On ignore le cas
-            return (self.dico_try_hard[identifiant][0] == POS_WIN, self.dico_try_hard[identifiant][1])
+            return (self.dico_win[identifiant][1], self.dico_win[identifiant][0])
 
-        self.dico_try_hard[identifiant] = (INDECIS, None)
+        self.dico_win[identifiant] = (INDECIS, None)
         if self.finPartie(jtrait):
-            self.dico_try_hard[identifiant] = (POS_WIN, None) if self.jeu.gagnant(jtrait) else (POS_LOSE, None)
+            self.dico_win[identifiant] = (self.jeu.gagnant(jtrait), None)
             return None, self.jeu.gagnant(jtrait)
 
         _etat_entrant = self.jeu.configuration
@@ -157,10 +154,10 @@ class Parcours(Base):
             position_perdante_adv = self.positionPerdante(self.adversaire(jtrait))
             if position_perdante_adv:
                 self.jeu.configuration = _etat_entrant
-                self.dico_try_hard[identifiant] = (POS_WIN, coup)
+                self.dico_win[identifiant] = (True, coup)
                 return coup, True
             self.jeu.configuration = _etat_entrant
-        self.dico_try_hard[identifiant] = (POS_OSEF, None)
+        self.dico_win[identifiant] = (False, None)
         return None, False
 
     def positionPerdante(self,jtrait):
@@ -168,13 +165,13 @@ class Parcours(Base):
            à développer
         """
         identifiant = self.create_id(self.jeu.configuration, jtrait)
-        if identifiant in self.dico_try_hard:
-            if self.dico_try_hard[identifiant][0] == INDECIS:
+        if identifiant in self.dico_lose:
+            if self.dico_lose[identifiant][0] == INDECIS:
                 return False  # Opération identité du any de positionGagnante --> On ignore le cas
-            return self.dico_try_hard[identifiant][0] == POS_LOSE
+            return self.dico_lose[identifiant][0]
 
         if self.finPartie(jtrait):
-            self.dico_try_hard[identifiant] = (POS_LOSE, None) if self.jeu.perdant(jtrait) else (POS_WIN, None)
+            self.dico_lose[identifiant] = (self.jeu.perdant(jtrait), None)
             return self.jeu.perdant(jtrait)
         _etat_entrant = self.jeu.configuration
         for conf, coup in futur_confs(self.jeu):
@@ -182,11 +179,11 @@ class Parcours(Base):
             position_gagnante_adv = self.positionGagnante(self.adversaire(jtrait))[1]
             if not position_gagnante_adv:
                 self.jeu.configuration = _etat_entrant
-                self.dico_try_hard[identifiant] = (POS_OSEF, None)
+                self.dico_lose[identifiant] = (False, None)
                 return False
             self.jeu.configuration = _etat_entrant
 
-        self.dico_try_hard[identifiant] = (POS_LOSE, None)
+        self.dico_lose[identifiant] = (True, None)
         return True
 
     def create_id(self, conf, jtrait):
@@ -227,14 +224,18 @@ def futur_confs(doo):
 if __name__ == "__main__" :
 
     doo = Doo()
-    doo.configuration = [BLANCS, NOIRS, VIDE,
+    doo.configuration = [VIDE, NOIRS, VIDE,
+                         BLANCS, BLANCS, VIDE,
                          NOIRS, VIDE, BLANCS,
-                         VIDE, BLANCS, VIDE,
-                         NOIRS, BLANCS, VIDE], 11
+                         VIDE, VIDE, VIDE], 11
     par = Parcours(doo)
+    print('pos gagnant J_ATT')
     print(par.positionGagnante(J_ATT))
     doo.configuration = doo.configuration[0], 10
+    print('pos lose J_DEF')
     print(par.positionPerdante(J_DEF))
+    print('pos win J_DEF')
+    print(par.positionGagnante(J_DEF))
 
 
     _lattr = ['_minmax','_minmax_iter',
