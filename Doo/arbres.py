@@ -189,7 +189,7 @@ class Parcours(Base):
 
     def create_id(self, conf, jtrait):
         if isinstance(conf[0], int):
-            return (conf[1]%2)*100 + conf[0]
+            return ((conf[1]%2)*2-1) * conf[0]
         dico_pions = {VIDE: 13, ROI: 17, NOIRS: 19, BLANCS: 23}
         identifiant = 0
         for i, case in enumerate(conf[0]):
@@ -239,7 +239,7 @@ if __name__ == "__main__" :
     # print('pos win J_DEF')
     # print(par.positionGagnante(J_DEF))
 
-    al = allumettes(1)
+    al = allumettes(700)
     par = Parcours(al)
     print("pos gagnant 0")
     print(par.positionGagnante(0))
