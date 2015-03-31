@@ -7,6 +7,7 @@ from tp02_abstract import Base, IAPlayer, BIGVALUE
 # Remplacer XXXX par le nom du fichier correspondant au tp01b
 from tp01a import VIDE, BLANCS, NOIRS, ROI, J_DEF, J_ATT
 from tp01a import Doo
+from allumettes import allumettes
 import copy
 
 INDECIS = object()
@@ -187,6 +188,8 @@ class Parcours(Base):
         return True
 
     def create_id(self, conf, jtrait):
+        if isinstance(conf[0], int):
+            return (conf[1]%2)*100 + conf[0]
         dico_pions = {VIDE: 13, ROI: 17, NOIRS: 19, BLANCS: 23}
         identifiant = 0
         for i, case in enumerate(conf[0]):
@@ -222,21 +225,24 @@ def futur_confs(doo):
         yield (conf[0], conf[1]), coup
 
 if __name__ == "__main__" :
+    # doo = Doo()
+    # doo.configuration = [VIDE, NOIRS, VIDE,
+    #                      BLANCS, BLANCS, VIDE,
+    #                      NOIRS, VIDE, BLANCS,
+    #                      VIDE, VIDE, VIDE], 11
+    # par = Parcours(doo)
+    # print('pos gagnant J_ATT')
+    # print(par.positionGagnante(J_ATT))
+    # doo.configuration = doo.configuration[0], 10
+    # print('pos lose J_DEF')
+    # print(par.positionPerdante(J_DEF))
+    # print('pos win J_DEF')
+    # print(par.positionGagnante(J_DEF))
 
-    doo = Doo()
-    doo.configuration = [VIDE, NOIRS, VIDE,
-                         BLANCS, BLANCS, VIDE,
-                         NOIRS, VIDE, BLANCS,
-                         VIDE, VIDE, VIDE], 11
-    par = Parcours(doo)
-    print('pos gagnant J_ATT')
-    print(par.positionGagnante(J_ATT))
-    doo.configuration = doo.configuration[0], 10
-    print('pos lose J_DEF')
-    print(par.positionPerdante(J_DEF))
-    print('pos win J_DEF')
-    print(par.positionGagnante(J_DEF))
-
+    al = allumettes(1)
+    par = Parcours(al)
+    print("pos gagnant 0")
+    print(par.positionGagnante(0))
 
     _lattr = ['_minmax','_minmax_iter',
               '_negamax', '_negamax_iter',
