@@ -190,7 +190,7 @@ class Parcours(Base):
     def create_id(self, conf, jtrait):
         if isinstance(conf[0], int):
             return ((conf[1]%2)*2-1) * conf[0]
-        dico_pions = {VIDE: 13, ROI: 17, NOIRS: 19, BLANCS: 23}
+        dico_pions = {VIDE: 1, ROI: 100, NOIRS: 10000, BLANCS: 1000000}
         identifiant = 0
         for i, case in enumerate(conf[0]):
             identifiant ^= dico_pions[case] * (i+1)

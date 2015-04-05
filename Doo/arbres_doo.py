@@ -24,21 +24,24 @@ def play_manche(eval1, eval2, force=3,code=0):
     """
     jA = IA(force,code, eval1)
     jB = IA(force, code, eval2) # joueur par défaut
-    jA = Human()
-    #print(jA,"force %d" % jA.niveau)
+    #jB = Human()
+    try:
+        print(jA,"force %d code %d" % (jA.niveau, jA.code))
+    except:
+        print(jA)
     score, tour, hist = manche(jA,jB)
     # replay(hist)
     return score, hist
 
 
 def main():
-    evaluations = [evaluation1, evaluation2, evaluation3, dummy]
+    evaluations = [evaluation1, evaluation4]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
     # replay(play_manche(evaluation1, evaluation2)[1])
     # return;
     for eval1, eval2 in itertools.permutations(evaluations, 2):  # génère toutes les combinaisons d'évaluations, sans self vs self
-        score = play_manche(eval1, eval2, force=3, code=4)[0]
+        score = play_manche(eval1, eval2, force=3, code=0)[0]
         if score > 0:
             score_att[eval1] += score
         else:
@@ -55,70 +58,91 @@ def dummy(self, joueur):
 
 
 def evaluation1(self, joueur):
-        """
-        evalue numeriquement la situation dans lequel se trouve le joueur
-        """
-        if self.perdant(joueur): return -100
-        if self.gagnant(joueur): return 100
-        if self.pose:
-            score = 0
-            for i, pion in enumerate(self.board):
-                if pion == NOIRS or pion == ROI:
-                    score -= self._distance_from_doo(i)
-            return score
-        else:
-            nb_blancs = self.board.count(BLANCS)
-            nb_noirs = 0
-            smallest_distance = 3
-            for i, pion in enumerate(self.board):
-                if pion == NOIRS or pion == ROI:
-                    nb_noirs += 1
-                    smallest_distance = min(smallest_distance, self._distance_from_doo(i))
-            return - (smallest_distance)**2 - nb_blancs
+    """
+    evalue numeriquement la situation dans lequel se trouve le joueur
+    """
+    if self.perdant(joueur): return -100
+    if self.gagnant(joueur): return 100
+    if self.pose:
+        score = 0
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                score -= self._distance_from_doo(i)
+        return score
+    else:
+        nb_blancs = self.board.count(BLANCS)
+        nb_noirs = 0
+        smallest_distance = 3
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                nb_noirs += 1
+                smallest_distance = min(smallest_distance, self._distance_from_doo(i))
+        return - (smallest_distance)**2 - nb_blancs
 
 def evaluation2(self, joueur):
-        """
-        evalue numeriquement la situation dans lequel se trouve le joueur
-        """
-        if self.perdant(joueur): return -100
-        if self.gagnant(joueur): return 100
-        if self.pose:
-            score = 0
-            for i, pion in enumerate(self.board):
-                if pion == NOIRS or pion == ROI:
-                    score -= self._distance_from_doo(i)
-            return score
-        else:
-            nb_blancs = self.board.count(BLANCS)
-            nb_noirs = 0
-            smallest_distance = 3
-            for i, pion in enumerate(self.board):
-                if pion == NOIRS or pion == ROI:
-                    nb_noirs += 1
-                    smallest_distance = min(smallest_distance, self._distance_from_doo(i))
-            return - (smallest_distance)**2 - nb_blancs - abs(nb_noirs - 1)
+    """
+    evalue numeriquement la situation dans lequel se trouve le joueur
+    """
+    if self.perdant(joueur): return -100
+    if self.gagnant(joueur): return 100
+    if self.pose:
+        score = 0
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                score -= self._distance_from_doo(i)
+        return score
+    else:
+        nb_blancs = self.board.count(BLANCS)
+        nb_noirs = 0
+        smallest_distance = 3
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                nb_noirs += 1
+                smallest_distance = min(smallest_distance, self._distance_from_doo(i))
+        return - (smallest_distance)**2 - nb_blancs - abs(nb_noirs - 1)
 
 def evaluation3(self, joueur):
-        """
-        evalue numeriquement la situation dans lequel se trouve le joueur
-        """
-        if self.perdant(joueur): return -100
-        if self.gagnant(joueur): return 100
-        if self.pose:
-            score = 0
-            for i, pion in enumerate(self.board):
-                if pion == NOIRS or pion == ROI:
-                    score -= self._distance_from_doo(i)
-            return score
-        else:
-            nb_blancs = self.board.count(BLANCS)
-            nb_noirs = 0
-            smallest_distance = 3
-            for i, pion in enumerate(self.board):
-                if pion == NOIRS or pion == ROI:
-                    nb_noirs += 1
-                    smallest_distance = min(smallest_distance, self._distance_from_doo(i))
-            return - (smallest_distance) - abs(nb_blancs -1)**2 + nb_noirs
+    """
+    evalue numeriquement la situation dans lequel se trouve le joueur
+    """
+    if self.perdant(joueur): return -100
+    if self.gagnant(joueur): return 100
+    if self.pose:
+        score = 0
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                score -= self._distance_from_doo(i)
+        return score
+    else:
+        nb_blancs = self.board.count(BLANCS)
+        nb_noirs = 0
+        smallest_distance = 3
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                nb_noirs += 1
+                smallest_distance = min(smallest_distance, self._distance_from_doo(i))
+        return - (smallest_distance) - abs(nb_blancs -1)**2 + nb_noirs
+
+def evaluation4(self, joueur):
+    board = self.configuration[0]
+    pose = self.configuration[1] < 8
+    if self.perdant(joueur): return -100
+    if self.gagnant(joueur): return 100
+    if pose:
+        score = 0
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                score -= self._distance_from_doo(i)
+        return score
+    else:
+        nb_blancs = board.count(BLANCS)
+        nb_noirs = 0
+        smallest_distance = 3
+        for i, pion in enumerate(board):
+            if pion == NOIRS or pion == ROI:
+                nb_noirs += 1
+                smallest_distance = min(smallest_distance, self._distance_from_doo(i))
+        return - (smallest_distance) - abs(nb_blancs -1)**2 - 3*int(board[4] == BLANCS) - abs(nb_noirs - 1)
 
 if __name__ == "__main__" :
     # force: la profondeur, code: l'algorithme
