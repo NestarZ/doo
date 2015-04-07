@@ -112,7 +112,7 @@ class Human(Player):
                 coup = self._ask_pose_def()
             else:
                 coup = self._ask_coup()
-                if coup not in lcoups:  # Si deplacement, alors pas en list
+                if coup not in lcoups and coup != None: # Si deplacement, alors pas en list
                     coup = (coup[0], coup[1][0])
             valid = coup in lcoups
         return coup
@@ -161,6 +161,7 @@ class Human(Player):
         try:
             start_h, dest_h = input('>>> ').split(None, 1)
             dest_l = dest_h.split()
+            print(dest_l)
             start = humain2ordi(start_h)
             dest = [humain2ordi(c) for c in dest_l]
         except ValueError:
@@ -197,6 +198,7 @@ def manche(funA=None, funB=None):
         points = 0
     if cycling(hist):
         print("cycling !")
+        replay(hist)
     #print(doo)
     return points, doo.configuration[1], hist
 
@@ -262,7 +264,7 @@ def replay(hist):
         conf = doo.joue(jtrait, c)
         lstr += str(doo) + '\n\n'
         doo.configuration = conf
-        if isinstance(c[0], str):           
+        if isinstance(c[0], str):
             lstr += spl.format(role[jtrait],
                                c[0],ordi2humain(c[1]))
         elif isinstance(c[1], list):
@@ -274,10 +276,10 @@ def replay(hist):
                                ordi2humain(c[1]))
         jtrait = doo.adversaire(jtrait)
     is_end = doo.finPartie(jtrait)
-    lstr += "Fin de manche : {}".format(is_end) 
+    lstr += "Fin de manche : {}".format(is_end)
     print(lstr)
     return is_end
-           
+
 if __name__ == "__main__":
     doo = Doo()  # Remplacer Doo par le nom de la classe de votre jeu
     a = Random()
@@ -294,4 +296,3 @@ if __name__ == "__main__":
         print(c.name, "en defense", c(doo, J_DEF))
     foo, histp = partie(None, None)
     replay(histp[1])
-    

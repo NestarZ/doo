@@ -30,14 +30,17 @@ def create_id(conf, jtrait):
         identifiant ^= 898  # max id = 276 pour les cases
     return identifiant
 
-doo = Doo()
-par = Parcours(doo)
+if __name__ == "__main__":
+	doo = Doo()
+	par = Parcours(doo)
 
 
-pos_win_black = []
-for comb in generate_combination(2, 2):
-    doo.configuration = comb, 11
-    if (par.positionGagnante(J_ATT)[1]):
-        pos_win_black.append(create_id(doo.configuration, J_ATT))
+	pos_win_black = []
+	for nb_noirs in range(1, 3):
+		for nb_blancs in range(1, 3):
+			for comb in generate_combination(nb_noirs, nb_blancs):
+			    doo.configuration = comb, 11
+			    if (par.positionGagnante(J_ATT)[1]):
+			        pos_win_black.append(create_id(doo.configuration, J_ATT))
 
-print(pos_win_black)
+	print(sorted(pos_win_black))
