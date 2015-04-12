@@ -93,17 +93,17 @@ class Doo(Game):
         """ renvoie True si la partie est terminee """
         nb_pions_noirs = self.board.count(ROI) + self.board.count(NOIRS)
         nb_pions_blancs = self.board.count(BLANCS)
-        return not self.pose and (not self._listeCoupsosef(self.trait) 
+        return not self.pose and (not self._listeCoupsosef(self.trait)
                                   or self.gagnant(J_ATT)
                                   or nb_pions_noirs == 0
                                   or nb_pions_blancs == 0)
 
     def listeCoups(self,joueur):
         """ renvoie la liste des coups autorises pour le joueur """
-        
+
         if self.trait != joueur:
             return []
-        
+
         if self.gagnant(J_ATT):
             return []
         elif self.finPartie(J_DEF):
@@ -124,14 +124,14 @@ class Doo(Game):
             _control = (BLANCS,)
             _mangeable = (NOIRS,ROI)
 
-        if self.pose: 
+        if self.pose:
             r1 = lambda i: not i == 4 and (not i in (1,3,5) or self.tour > 1)
             if ROI in self.board and ROI in _control:
                 _control = (NOIRS, )
             if joueur == J_ATT:
                 _pose = [(type_,i) for i,x in enumerate(self.board) if x == VIDE and r1(i) for type_ in _control]
             else:
-                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j) 
+                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j)
                                                                               and self.board[i] == VIDE
                                                                               and self.board[j] == VIDE]
             return _pose
@@ -252,8 +252,8 @@ class Doo(Game):
                     _temp_t[depart+(distance//2)] = VIDE
                     depart = end[i]
             return _temp_t, _temp_tr
-        
-    def evaluation(self,joueur):
+
+    def evaluation(self,joueur, memory):
         """
         evalue numeriquement la situation dans lequel se trouve le joueur
         """
@@ -282,5 +282,3 @@ class Doo(Game):
             return 1
         else:
             return 2
-
-
