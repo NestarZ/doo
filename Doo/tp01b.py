@@ -185,6 +185,7 @@ def manche(funA=None, funB=None):
         else:
             coup = funB(doo, jtrait)
         hist.append(coup)
+        doo.hist = hist[:]
         conf = doo.joue(jtrait, coup)
         doo.configuration = conf
         jtrait = doo.adversaire(jtrait)
@@ -199,6 +200,7 @@ def manche(funA=None, funB=None):
     if cycling(hist):
         print("cycling !")
         replay(hist)
+        print(hist)
     #print(doo)
     return points, doo.configuration[1], hist
 
@@ -257,6 +259,7 @@ def replay(hist):
     jtrait = J_ATT
     lstr, spl = '', '{}: {} {}\n'
     lstr += ">>> Phase 1 - Pose\n"
+    print(hist)
     for c in hist:
         if doo.configuration[1] == 8:
             lstr += ">>> Phase 2 - Duel\n"

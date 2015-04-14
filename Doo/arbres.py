@@ -39,6 +39,7 @@ class Parcours(Base):
         if not evaluation:
             evaluation = self.jeu.evaluation.__func__
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
+        _etat_entrant_hist = self.jeu.hist[:]
         if self.finPartie(joueur) or profondeur == 0 :
             if self.moi == joueur:
                 return None, evaluation(self.jeu, self.moi)
@@ -60,8 +61,10 @@ class Parcours(Base):
             rep = +BIGVALUE
             for conf, coup in futur_confs(self.jeu):
                 self.jeu.configuration = conf
+                self.jeu.hist.append(coup)
                 nrep = min(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
                 self.jeu.configuration = _etat_entrant
+                self.jeu.hist = _etat_entrant_hist
                 if nrep < rep:
                     rep = nrep
                     bestcoup = coup
@@ -87,7 +90,7 @@ class Parcours(Base):
             evaluation = Doo.evaluation
         # On sauvegarde l'etat dans lequel on entre
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
-        
+
         if self.finPartie(jtrait) or profondeur == 0 :
             if jtrait == J_ATT:
                 signe = 1
@@ -101,7 +104,7 @@ class Parcours(Base):
             rep = max(rep, -self._negamax(self.adversaire(jtrait), profondeur-1)[1])
             self.jeu.configuration = _etat_entrant
         return coup, rep
-    
+
     def _alphabeta(self,jtrait,alpha,beta,profondeur, evaluation=None):
         """
         self.jeu.configuration la configuration de jeu a analyser
@@ -128,7 +131,7 @@ class Parcours(Base):
         best = -BIGVALUE
         for conf, coup in futur_confs(self.jeu):
             self.jeu.configuration = conf
-            rep = max(best, -self._alphabeta(self.adversaire(jtrait), -beta, -alpha, profondeur - 1, evaluation)[1]) 
+            rep = max(best, -self._alphabeta(self.adversaire(jtrait), -beta, -alpha, profondeur - 1, evaluation)[1])
             self.jeu.configuration = _etat_entrant
             if alpha >= beta:
                 break

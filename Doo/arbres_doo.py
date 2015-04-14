@@ -9,13 +9,14 @@ sur le jeu de Doo
 """
 
 # changer XXXX par le nom du fichier correspondant à tp01b
-from tp01b import manche, replay, Human
+from tp01b import manche, replay, cycling, Human
 from arbres import Parcours, IA
 from tp01a import *
 from all_pos_win_lose import create_id
 import json
 import itertools
 import pprint
+import random
 
 
 
@@ -38,7 +39,7 @@ def play_manche(eval1, eval2, force=3,code=0):
 
 
 def main():
-    evaluations = [evaluation5, evaluation4]
+    evaluations = [evaluation5, evaluation5]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
     # replay(play_manche(evaluation1, evaluation2)[1])
@@ -136,8 +137,11 @@ def evaluation4(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
-        return score
+        #return score
+        return random.randint(0,100)
     else:
+        if cycling(self.hist):
+            return -10000
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -160,7 +164,10 @@ def evaluation5(self, joueur):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
         return score
+        return random.randint(0,100)
     else:
+        if cycling(self.hist):
+            return -10000
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -170,11 +177,10 @@ def evaluation5(self, joueur):
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
         if nb_blancs < 3 and nb_noirs < 3:
             if id_ in pos_win:
-                print("ok")
                 return 100 - 3*(nb_blancs + nb_noirs)**2
         if (board[4] == BLANCS):
-            return - (smallest_distance) - 3*int(board[4] == BLANCS) - nb_blancs
-        return - (smallest_distance) - abs(nb_noirs - 1)
+            return - (smallest_distance) - 4*int(board[4] == BLANCS) - nb_blancs
+        return - (smallest_distance) - nb_blancs**3
 
 
 if __name__ == "__main__" :
