@@ -19,9 +19,8 @@ class Parcours(Base):
         super(Parcours,self).__init__(unJeu)
         self.dico_win = {}
         self.dico_lose = {}
-        self.memory = []
 
-    def _minmax(self,joueur,profondeur, evaluation, memory):
+    def _minmax(self,joueur,profondeur, evaluation):
         """ minmax recursif doit renvoyer un coup,une evaluation
         self.moi permet de connaitre le joueur de reference
         si self.moi == joueur : on est sur niveau MAX
@@ -42,9 +41,9 @@ class Parcours(Base):
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         if self.finPartie(joueur) or profondeur == 0 :
             if self.moi == joueur:
-                return None, evaluation(self.jeu, self.moi, memory)
+                return None, evaluation(self.jeu, self.moi)
             else:
-                return None, -evaluation(self.jeu, self.moi, memory)
+                return None, -evaluation(self.jeu, self.moi)
 
         bestcoup = None
 
@@ -52,8 +51,7 @@ class Parcours(Base):
             rep = -BIGVALUE
             for conf, coup in futur_confs(self.jeu):
                 self.jeu.configuration = conf
-                id_ = self.create_id(conf, joueur)
-                nrep = max(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation, memory+[id_])[1])
+                nrep = max(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
                 self.jeu.configuration = _etat_entrant
                 if nrep > rep:
                     rep = nrep
@@ -62,8 +60,7 @@ class Parcours(Base):
             rep = +BIGVALUE
             for conf, coup in futur_confs(self.jeu):
                 self.jeu.configuration = conf
-                id_ = self.create_id(conf, self.adversaire(joueur))
-                nrep = min(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation, memory+[id_])[1])
+                nrep = min(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
                 self.jeu.configuration = _etat_entrant
                 if nrep < rep:
                     rep = nrep
@@ -74,7 +71,7 @@ class Parcours(Base):
         # renvoie le coup et son évaluation
         return bestcoup,rep
 
-    def _negamax(self,jtrait,profondeur, evaluation=None, memory=[]):
+    def _negamax(self,jtrait,profondeur, evaluation=None):
         """
         version recursive du negamax :
 
@@ -90,22 +87,22 @@ class Parcours(Base):
             evaluation = Doo.evaluation
         # On sauvegarde l'etat dans lequel on entre
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
-
+        
         if self.finPartie(jtrait) or profondeur == 0 :
             if jtrait == J_ATT:
                 signe = 1
             else:
                 signe = -1
-            return None, signe*evaluation(self.jeu, jtrait, memory)
+            return None, signe*evaluation(self.jeu, jtrait)
 
         rep = -BIGVALUE
         for conf, coup in futur_confs(self.jeu):
             self.jeu.configuration = conf
-            rep = max(rep, -self._negamax(self.adversaire(jtrait), profondeur-1, memory+[coup])[1])
+            rep = max(rep, -self._negamax(self.adversaire(jtrait), profondeur-1)[1])
             self.jeu.configuration = _etat_entrant
         return coup, rep
-
-    def _alphabeta(self,jtrait,alpha,beta,profondeur, evaluation=None, memory=[]):
+    
+    def _alphabeta(self,jtrait,alpha,beta,profondeur, evaluation=None):
         """
         self.jeu.configuration la configuration de jeu a analyser
         jtrait le joueur ayant le trait pour cet etat
@@ -126,12 +123,12 @@ class Parcours(Base):
                 signe = 1
             else:
                 signe = -1
-            return None, signe*evaluation(self.jeu, jtrait, memory)
+            return None, signe*evaluation(self.jeu, jtrait)
 
         best = -BIGVALUE
         for conf, coup in futur_confs(self.jeu):
             self.jeu.configuration = conf
-            rep = max(best, -self._alphabeta(self.adversaire(jtrait), -beta, -alpha, profondeur - 1, evaluation, memory+[coup])[1])
+            rep = max(best, -self._alphabeta(self.adversaire(jtrait), -beta, -alpha, profondeur - 1, evaluation)[1]) 
             self.jeu.configuration = _etat_entrant
             if alpha >= beta:
                 break
@@ -206,7 +203,6 @@ class IA(IAPlayer):
     def __init__(self,lvl,code=0, evaluation=None, name=None):
         super(IA,self).__init__(lvl,code, evaluation)
         if name is not None: self.nom = name
-        self.memory = []
 
     def choixCoup(self,unJeu,joueur):
         """
@@ -216,8 +212,7 @@ class IA(IAPlayer):
             renvoie le coup calculé
         """
         par = Parcours(unJeu)
-        self.memory.append(par.create_id(unJeu.configuration, joueur))
-        bestcoup, eval = par.minmax(joueur, self.niveau, self.code, self.evaluation, self.memory)
+        bestcoup, eval = par.minmax(joueur, self.niveau, self.code, self.evaluation)
         return bestcoup
 
 def futur_confs(doo):

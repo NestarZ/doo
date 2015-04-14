@@ -45,7 +45,7 @@ class Base(object):
                     raise Exception("%s unknown" % attr)
             self.__game = unJeu
 
-    def minmax(self,joueur,profondeur,code=0, evaluation=None, memory=[]):
+    def minmax(self,joueur,profondeur,code=0, evaluation=None):
         """ effectue le calcul minmax
         en fonction de code:
             - 0 : _minmax methode recursive # Obligatoire
@@ -58,18 +58,18 @@ class Base(object):
         """
         self.__player = joueur
         if code > 5 or code <= 0 : # si on est hors de l'intervalle
-            return self._minmax(joueur, profondeur, evaluation, memory)
+            return self._minmax(joueur, profondeur, evaluation)
         if code == 1 :
-            return self._minmax_iter(joueur,profondeur, evaluation, memory)
+            return self._minmax_iter(joueur,profondeur, evaluation)
         if code == 2 :
-            return self._negamax(joueur,profondeur, evaluation, memory)
+            return self._negamax(joueur,profondeur, evaluation)
         if code == 3 :
-            return self._negamax_iter(joueur,profondeur, evaluation, memory)
+            return self._negamax_iter(joueur,profondeur, evaluation)
         if code == 4 :
-            return self._alphabeta(joueur,-BIGVALUE,BIGVALUE,profondeur, evaluation, memory)
+            return self._alphabeta(joueur,-BIGVALUE,BIGVALUE,profondeur, evaluation)
         if code == 5 :
             return self._alphabeta_negamax(joueur,-BIGVALUE,
-                                           BIGVALUE,profondeur, evaluation, memory)
+                                           BIGVALUE,profondeur, evaluation)
 
     def _minmax(self,*args,**kwargs):
         """
@@ -112,7 +112,7 @@ class Base(object):
         renvoie le meilleur coup et son estimation
         """
         return None,0
-
+    
     def positionGagnante(self,joueur):
         """
            Une position est gagnante s'il existe un coup tel
@@ -136,10 +136,10 @@ class Base(object):
            par défaut:
            renvoie False
         """
-
+        
         if self.finPartie(joueur): return self.perdant( joueur )
         return False # partie à développer
-
+        
 
 class IAPlayer(Player):
     """ constructeur
@@ -185,3 +185,4 @@ class IAPlayer(Player):
             self.__code = val
         except:
             print( val,"ignoree")
+    

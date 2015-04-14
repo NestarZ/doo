@@ -60,7 +60,7 @@ def dummy(self, joueur):
     return 0
 
 
-def evaluation1(self, joueur, memory):
+def evaluation1(self, joueur):
     """
     evalue numeriquement la situation dans lequel se trouve le joueur
     """
@@ -82,7 +82,7 @@ def evaluation1(self, joueur, memory):
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
         return - (smallest_distance)**2 - 3*nb_blancs
 
-def evaluation2(self, joueur, memoire):
+def evaluation2(self, joueur):
     """
     evalue numeriquement la situation dans lequel se trouve le joueur
     """
@@ -104,7 +104,7 @@ def evaluation2(self, joueur, memoire):
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
         return - (smallest_distance)**2 - nb_blancs - abs(nb_noirs - 1)
 
-def evaluation3(self, joueur, memoire):
+def evaluation3(self, joueur):
     """
     evalue numeriquement la situation dans lequel se trouve le joueur
     """
@@ -126,10 +126,9 @@ def evaluation3(self, joueur, memoire):
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
         return -3**abs(nb_blancs -1) + nb_noirs
 
-def evaluation4(self, joueur, memory):
+def evaluation4(self, joueur):
     board = self.configuration[0]
     pose = self.configuration[1] < 8
-    id_ = create_id(self.configuration, joueur)
     if self.perdant(joueur): return -100
     if self.gagnant(joueur): return 100
     if pose:
@@ -139,8 +138,6 @@ def evaluation4(self, joueur, memory):
                 score -= self._distance_from_doo(i)
         return score
     else:
-        if id_ in memory[:-1]: # on regarde tout les configurations sauf celle sur laquelle on travaille
-            return -100
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -150,7 +147,7 @@ def evaluation4(self, joueur, memory):
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
         return - (smallest_distance) - abs(nb_blancs -1)**2 - 3*int(board[4] == BLANCS) - abs(nb_noirs - 1)
 
-def evaluation5(self, joueur, memory):
+def evaluation5(self, joueur):
     global pos_win
     board = self.configuration[0]
     id_ = create_id(self.configuration, joueur)
@@ -164,8 +161,6 @@ def evaluation5(self, joueur, memory):
                 score -= self._distance_from_doo(i)
         return score
     else:
-        if id_ in memory[:-1]:
-            return -100
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
