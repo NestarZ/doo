@@ -199,8 +199,9 @@ def manche(funA=None, funB=None):
         points = 0
     if cycling(hist):
         print("cycling !")
-        replay(hist)
-        print(hist)
+        #replay(hist)
+    replay(hist)
+    print(hist)
     #print(doo)
     return points, doo.configuration[1], hist
 

@@ -39,7 +39,7 @@ def play_manche(eval1, eval2, force=3,code=0):
 
 
 def main():
-    evaluations = [evaluation5, evaluation5]
+    evaluations = [evaluation5, evaluation6]# , evaluation4, evaluation3, evaluation2, evaluation1]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
     # replay(play_manche(evaluation1, evaluation2)[1])
@@ -72,8 +72,10 @@ def evaluation1(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
-        return score
+        return random.randint(0,100)
     else:
+        if cycling(self.hist):
+            return -10000*joueur
         nb_blancs = self.board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -96,6 +98,8 @@ def evaluation2(self, joueur):
                 score -= self._distance_from_doo(i)
         return score
     else:
+        if cycling(self.hist):
+            return -10000*joueur
         nb_blancs = self.board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -118,6 +122,8 @@ def evaluation3(self, joueur):
                 score -= self._distance_from_doo(i)
         return score
     else:
+        if cycling(self.hist):
+            return -10000*joueur
         nb_blancs = self.board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -137,8 +143,8 @@ def evaluation4(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
-        #return score
-        return random.randint(0,100)
+        return score
+        #return random.randint(0,100)
     else:
         if cycling(self.hist):
             return -10000
@@ -156,18 +162,18 @@ def evaluation5(self, joueur):
     board = self.configuration[0]
     id_ = create_id(self.configuration, joueur)
     pose = self.configuration[1] < 8
-    if self.perdant(joueur): return -100
-    if self.gagnant(joueur): return 100
+    if self.perdant(joueur): return -1000-self.configuration[1]
+    if self.gagnant(joueur): return 1000-self.configuration[1]
     if pose:
         score = 0
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
         return score
-        return random.randint(0,100)
+        #return random.randint(0,100)
     else:
         if cycling(self.hist):
-            return -10000
+            return -10000*joueur
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -180,8 +186,43 @@ def evaluation5(self, joueur):
                 return 100 - 3*(nb_blancs + nb_noirs)**2
         if (board[4] == BLANCS):
             return - (smallest_distance) - 4*int(board[4] == BLANCS) - nb_blancs
-        return - (smallest_distance) - nb_blancs**3
+        return - (smallest_distance) - nb_blancs*3
 
+def evaluation6(self, joueur):
+    global pos_win
+    board = self.configuration[0]
+    id_ = create_id(self.configuration, joueur)
+    pose = self.configuration[1] < 8
+    if self.perdant(joueur): return -1000+self.configuration[1]
+    if self.gagnant(joueur): return 1000-self.configuration[1]
+    if pose:
+        score = 0
+        for i, pion in enumerate(self.board):
+            if pion == NOIRS or pion == ROI:
+                score -= self._distance_from_doo(i)
+                for l in "rudl":
+                    try:
+                        score -= int(self.doo.cell(i,l) == NOIRS)
+                    except:
+                        pass
+        return score
+        #return random.randint(0,100)
+    else:
+        if cycling(self.hist):
+            return -10000*joueur
+        nb_blancs = board.count(BLANCS)
+        nb_noirs = 0
+        smallest_distance = 3
+        for i, pion in enumerate(board):
+            if pion == NOIRS or pion == ROI:
+                nb_noirs += 1
+                smallest_distance = min(smallest_distance, self._distance_from_doo(i))
+        if nb_blancs < 3 and nb_noirs < 3:
+            if id_ in pos_win:
+                return 100 - 3*(nb_blancs + nb_noirs)
+        if (board[4] == BLANCS):
+            return - (smallest_distance) - 2*int(board[4] == BLANCS) - nb_blancs
+        return - abs(smallest_distance - 1) - nb_blancs*2
 
 if __name__ == "__main__" :
     # force: la profondeur, code: l'algorithme
