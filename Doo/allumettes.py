@@ -33,8 +33,8 @@ class allumettes(Game):
         *args : parametre necessaire a l'initialisation
         **kwargs : parametre nomme necessaire a l'initialisation
         """
-        #if allumettes < 0 or allumettes > 16 :
-        #    allumettes = 10
+        if allumettes < 0 or allumettes > 16 :
+            allumettes = 10
         self.configuration = allumettes,1
 
 
@@ -93,12 +93,12 @@ class allumettes(Game):
 
     def perdant(self,joueur):
         """ renvoie True si l'etat est une defaite pour le joueur """
-        return (self.configuration[0] == 0 and self.configuration[1] % 2 == joueur)
+        return (self.configuration[0] == 0)
 
 
     def finPartie(self,joueur):
         """ renvoie True si la partie est terminee """
-        return self.perdant(joueur) or self.gagnant(joueur)
+        return self.perdant(joueur)
 
     def listeCoups(self,joueur):
         """ renvoie la liste des coups autorises pour le joueur """

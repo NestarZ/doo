@@ -7,8 +7,9 @@
 # -------------------------------------------------------------------#
 
 # Remplacez XXX par le nom de votre fichier de la première partie du TP01
-from tp01a import Doo, J_ATT, J_DEF, ROI, BLANCS
+from tp01a import Doo, J_ATT, J_DEF, ROI, BLANCS, VIDE, NOIRS
 from abstract import Player
+from arbres import IA
 import random
 # ================ Debut de votre code ==============================#
 
@@ -177,6 +178,13 @@ def manche(funA=None, funB=None):
     if funB is None:
         funB = First()
     doo = Doo()
+    board = [VIDE, VIDE, VIDE,
+             VIDE, VIDE, VIDE,
+             VIDE, VIDE, VIDE,
+             BLANCS, VIDE, NOIRS]
+
+    t = 10
+    doo.configuration = board, t
     jtrait = J_ATT
     hist = []
     while not doo.finPartie(jtrait) and not cycling(hist):
@@ -289,6 +297,7 @@ if __name__ == "__main__":
     a = Random()
     b = First()
     c = Human()
+    d = IA(3,4)
     if False:  # NEVER
         print(a.name, "en attaque", a(doo, J_ATT))
         print(a.name, "en defense", a(doo, J_DEF))
@@ -298,5 +307,5 @@ if __name__ == "__main__":
         print('='*10)
         print(c.name, "en attaque", c(doo, J_ATT))
         print(c.name, "en defense", c(doo, J_DEF))
-    foo, histp = partie(None, None)
+    manche(None, None)
     replay(histp[1])

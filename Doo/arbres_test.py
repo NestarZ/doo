@@ -67,10 +67,10 @@ def main(force=3,code=0):
     par defaut : une partie humain contre
     minmax recursif (code 0) niveau 3 (force 3)
     """
-    jA = ia(force, code, "Roger")
+    jA = humain("Roger")
     jB = ia(force,code, "Albert")
     print(jB,"force %d" % jB.niveau)
     print( partie(jA,jB) )
 
 if __name__ == "__main__" :
-    main()
+    main(3, 4)
