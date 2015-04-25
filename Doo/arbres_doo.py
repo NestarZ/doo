@@ -17,6 +17,7 @@ import json
 import itertools
 import pprint
 import random
+import time
 
 
 
@@ -30,7 +31,11 @@ def play_manche(eval1, eval2, force=3,code=0):
     jB = IA(force, code, eval2) # joueur par défaut
     #jA = Human()
     try:
-        print(jA,"force %d code %d" % (jA.niveau, jA.code))
+        print(jA.nom,"force %d code %d with %s" % (jA.niveau, jA.code, jA.evaluation.__name__))
+    except:
+        pass
+    try:
+        print(jB.nom,"force %d code %d with %s" % (jB.niveau, jB.code, jB.evaluation.__name__))
     except:
         pass
     score, tour, hist = manche(jA,jB)
@@ -39,6 +44,7 @@ def play_manche(eval1, eval2, force=3,code=0):
 
 
 def main():
+    start = time.time()
     evaluations = [evaluation5, evaluation6 , evaluation4, evaluation3, evaluation2, evaluation1]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
@@ -52,6 +58,7 @@ def main():
     pprint.pprint(score_def)
     print('attaque: ')
     pprint.pprint(score_att)
+    print(time.time() - start)
 
 def dummy(self, joueur):
     if self.perdant(joueur): return -100
@@ -167,8 +174,8 @@ def evaluation5(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
-        #return score
-        return random.randint(0,100)
+        return score
+        #return random.randint(0,100)
     else:
         if cycling(self.hist):
             return -10000*joueur
@@ -203,8 +210,8 @@ def evaluation6(self, joueur):
                         score -= int(self.doo.cell(i,l) == NOIRS)
                     except:
                         pass
-        #return score
-        return random.randint(0,100)
+        return score
+        #return random.randint(0,100)
     else:
         if cycling(self.hist):
             return -10000*joueur
