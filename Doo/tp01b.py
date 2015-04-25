@@ -183,9 +183,9 @@ def manche(funA=None, funB=None):
              VIDE, VIDE, VIDE,
              BLANCS, VIDE, NOIRS]
 
-    t = 10
+    t = 11
     doo.configuration = board, t
-    jtrait = J_ATT
+    jtrait = J_ATT if t%2 == 1 else J_DEF
     hist = []
     while not doo.finPartie(jtrait) and not cycling(hist):
         if jtrait == J_ATT:
@@ -265,7 +265,15 @@ def partie(j1, j2, min_manche=1):
 def replay(hist):
     role = {J_ATT:"J_ATT", J_DEF:"J_DEF"}
     doo = Doo()
-    jtrait = J_ATT
+    doo = Doo()
+    board = [VIDE, VIDE, VIDE,
+             VIDE, VIDE, VIDE,
+             VIDE, VIDE, VIDE,
+             BLANCS, VIDE, NOIRS]
+
+    t = 11
+    doo.configuration = board, t
+    jtrait = J_ATT if t%2 == 1 else J_DEF
     lstr, spl = '', '{}: {} {}\n'
     lstr += ">>> Phase 1 - Pose\n"
     print(hist)

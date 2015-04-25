@@ -43,9 +43,9 @@ class Parcours(Base):
             _etat_entrant_hist = self.jeu.hist[:]
         if self.finPartie(joueur) or profondeur == 0 :
             if self.moi == joueur:
-                return None, evaluation(self.jeu, self.moi)
+                return None, evaluation(self.jeu, joueur)
             else:
-                return None, -evaluation(self.jeu, self.moi)
+                return None, -evaluation(self.jeu, joueur)
 
         bestcoup = None
 
@@ -54,7 +54,9 @@ class Parcours(Base):
             for conf, coup in futur_confs(self.jeu):
                 self.jeu.configuration = conf
                 nrep = max(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
-                self.jeu.configuration = _etat_entrant
+                self.jeu.configuration = copy.deepcopy(_etat_entrant)
+                if 'hist' in dir(self.jeu):
+                    _etat_entrant_hist = self.jeu.hist[:]
                 if nrep > rep:
                     rep = nrep
                     bestcoup = coup
@@ -65,9 +67,9 @@ class Parcours(Base):
                 if 'hist' in dir(self.jeu):
                     self.jeu.hist.append(coup)
                 nrep = min(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
-                self.jeu.configuration = _etat_entrant
+                self.jeu.configuration = copy.deepcopy(_etat_entrant)
                 if 'hist' in dir(self.jeu):
-                    self.jeu.hist = _etat_entrant_hist
+                    self.jeu.hist = copy.deepcopy(_etat_entrant_hist)
                 if nrep < rep:
                     rep = nrep
                     bestcoup = coup
@@ -177,7 +179,7 @@ class Parcours(Base):
             if self.moi == jtrait:
                 rep = -BIGVALUE
                 for fils in self.listeCoups(jtrait):
-                    self.jeu.configuration = _etat_entrant
+                    self.jeu.configuration = copy.deepcopy(_etat_entrant)
                     self.jeu.configuration = self.joue(jtrait, fils)
 
                     if rep > alpha :
@@ -194,7 +196,7 @@ class Parcours(Base):
             else:
                 rep = BIGVALUE
                 for fils in self.listeCoups(jtrait):
-                    self.jeu.configuration = _etat_entrant
+                    self.jeu.configuration = copy.deepcopy(_etat_entrant)
                     self.jeu.configuration = self.joue(jtrait, fils)
 
                     if rep < beta :
@@ -210,7 +212,7 @@ class Parcours(Base):
                         beta = rep_temp
                     print(best, rep, "jr:{}, profondeur:{}".format(jtrait, profondeur))
 
-        self.jeu.configuration = _etat_entrant
+        self.jeu.configuration = copy.deepcopy(_etat_entrant)
         return best,rep
 
     def positionGagnante(self,jtrait):

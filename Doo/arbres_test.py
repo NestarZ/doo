@@ -22,8 +22,8 @@ class ia(Player):
     4 : alphabeta approche minmax, récursif
     5 : alphabeta approche negamax, récursif
     """
-    def __init__(self,lvl,code=0, nom="zeOrdinato"):
-        self.nom = nom
+    def __init__(self,lvl,code=0):
+        self.nom = "zeOrdinator"
         self.__niveau = 1 # initialisation de la profondeur de calcul
         self.__code = 0 # initialisation du type d'algo de parcours
         self.niveau = lvl
@@ -67,10 +67,33 @@ def main(force=3,code=0):
     par defaut : une partie humain contre
     minmax recursif (code 0) niveau 3 (force 3)
     """
-    jA = humain("Roger")
-    jB = ia(force,code, "Albert")
+    jA = humain('A')
+    jB = ia(force,code)
     print(jB,"force %d" % jB.niveau)
     print( partie(jA,jB) )
 
 if __name__ == "__main__" :
-    main(3, 4)
+    _msg = """
+    code le type d'implementation de minmax
+    0 : recursif
+    1 : iteratif
+    2 : negamax recursif
+    3 : negamax iteratif
+    4 : alphabeta approche minmax, récursif
+    5 : alphabeta approche negamax, récursif
+
+    autre: arret """
+    code = None
+    while code !=-1 :
+        print("_"*15)
+        print( _msg )
+        try:
+            code = int(input("votre choix ? "))
+        except:
+            code = -1
+        finally:
+            if code not in range(6): code =-1
+        if code != -1: main(3,code)
+
+
+    

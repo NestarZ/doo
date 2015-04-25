@@ -65,8 +65,8 @@ def evaluation1(self, joueur):
     """
     evalue numeriquement la situation dans lequel se trouve le joueur
     """
-    if self.perdant(joueur): return -100
-    if self.gagnant(joueur): return 100
+    if self.perdant(joueur): return -10000
+    if self.gagnant(joueur): return 10000
     if self.pose:
         score = 0
         for i, pion in enumerate(self.board):
@@ -113,8 +113,8 @@ def evaluation3(self, joueur):
     """
     evalue numeriquement la situation dans lequel se trouve le joueur
     """
-    if self.perdant(joueur): return -100
-    if self.gagnant(joueur): return 100
+    if self.perdant(joueur): return -10000
+    if self.gagnant(joueur): return 10000
     if self.pose:
         score = 0
         for i, pion in enumerate(self.board):
@@ -136,8 +136,8 @@ def evaluation3(self, joueur):
 def evaluation4(self, joueur):
     board = self.configuration[0]
     pose = self.configuration[1] < 8
-    if self.perdant(joueur): return -100
-    if self.gagnant(joueur): return 100
+    if self.perdant(joueur): return -10000
+    if self.gagnant(joueur): return 10000
     if pose:
         score = 0
         for i, pion in enumerate(self.board):
