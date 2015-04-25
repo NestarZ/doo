@@ -296,6 +296,7 @@ def replay(hist):
                                ordi2humain(c[1]))
         jtrait = doo.adversaire(jtrait)
     is_end = doo.finPartie(jtrait)
+    lstr += str(doo) + '\n\n'
     lstr += "Fin de manche : {}".format(is_end)
     print(lstr)
     return is_end
