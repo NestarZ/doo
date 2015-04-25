@@ -20,7 +20,7 @@ class Parcours(Base):
         self.dico_win = {}
         self.dico_lose = {}
 
-    def _minmax(self,joueur,profondeur, evaluation):
+    def _minmax(self, joueur, profondeur, evaluation):
         """ minmax recursif doit renvoyer un coup,une evaluation
         self.moi permet de connaitre le joueur de reference
         si self.moi == joueur : on est sur niveau MAX
@@ -110,50 +110,6 @@ class Parcours(Base):
             self.jeu.configuration = _etat_entrant
         return coup, rep
 
-    def _alphabeta2(self,jtrait,alpha,beta,profondeur, evaluation=None):
-        """
-        self.jeu.configuration la configuration de jeu a analyser
-        jtrait le joueur ayant le trait pour cet etat
-        alpha le maximum des minima
-        beta le minimum des maxima
-        profondeur la profondeur a laquelle se trouve etat dans l'arbre
-
-        self.moi permet de connaitre le joueur de reference
-        if self.moi == jtrait : niveau MAX
-        else: niveau MIN
-        """
-        if not evaluation:
-            evaluation = self.jeu.evaluation.__func__
-        _etat_entrant = copy.deepcopy(self.jeu.configuration)
-
-        if profondeur == 0 or self.finPartie(jtrait):
-            if jtrait == self.moi:
-                return None, evaluation(self.jeu, jtrait)
-            else:
-                return None, evaluation(self.jeu, self.adversaire(jtrait))
-
-        if jtrait == self.moi:
-            rep = -BIGVALUE
-            for conf, coup in futur_confs(self.jeu):
-                self.jeu.configuration = conf
-                rep = max(rep, self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur - 1, evaluation)[1])
-                alpha = max(alpha, rep)
-                self.jeu.configuration = _etat_entrant
-                if alpha >= beta:
-                    return coup, rep
-                print(coup, rep, "jr:{}, profondeur:{}".format(jtrait, profondeur))
-        else:
-            rep = BIGVALUE
-            for conf, coup in futur_confs(self.jeu):
-                self.jeu.configuration = conf
-                rep = min(rep, self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur - 1, evaluation)[1])
-                beta = min(beta, rep)
-                self.jeu.configuration = _etat_entrant
-                if alpha >= beta:
-                    return coup, rep
-                print(coup, rep, "jr:{}, profondeur:{}".format(jtrait, profondeur))
-        return coup, rep
-
     def _alphabeta(self,jtrait,alpha,beta,profondeur, evaluation=None): #Need to be changed _negamax style
         """
         self.jeu.configuration la configuration de jeu a analyser
@@ -167,12 +123,11 @@ class Parcours(Base):
         else: niveau MIN
         """
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
-        print(profondeur)
         if self.finPartie(jtrait) or profondeur == 0 :
             if self.moi == jtrait:
                 return None, self.evaluation(jtrait)
             else:
-                return None, self.evaluation(self.adversaire(jtrait))
+                return None, - self.evaluation(jtrait)
 
         else:
 
@@ -183,7 +138,6 @@ class Parcours(Base):
                     self.jeu.configuration = self.joue(jtrait, fils)
 
                     if rep > alpha :
-                        print("CUT")
                         return fils, rep
                     petit_fils, rep_temp = self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur-1)
 
@@ -191,7 +145,7 @@ class Parcours(Base):
                         rep = rep_temp
                         best = fils
                         alpha = rep_temp
-                    print(best, rep, "jr:{}, profondeur:{}".format(jtrait, profondeur))
+                    #print(best, rep, "jr:{}, profondeur:{}".format(jtrait, profondeur))
 
             else:
                 rep = BIGVALUE
@@ -200,7 +154,6 @@ class Parcours(Base):
                     self.jeu.configuration = self.joue(jtrait, fils)
 
                     if rep < beta :
-                        print("CUT")
                         return fils, rep
 
                     petit_fils, rep_temp = self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur-1)
@@ -210,7 +163,7 @@ class Parcours(Base):
                         rep = rep_temp
                         best = fils
                         beta = rep_temp
-                    print(best, rep, "jr:{}, profondeur:{}".format(jtrait, profondeur))
+                    #print(best, rep, "jr:{}, profondeur:{}".format(jtrait, profondeur))
 
         self.jeu.configuration = copy.deepcopy(_etat_entrant)
         return best,rep
