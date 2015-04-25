@@ -110,7 +110,7 @@ class Parcours(Base):
             self.jeu.configuration = _etat_entrant
         return coup, rep
 
-    def _alphabeta(self,jtrait,alpha,beta,profondeur, evaluation=None): #Need to be changed _negamax style
+    def _alphabeta(self,jtrait,alpha,beta,profondeur, evaluation): #Need to be changed _negamax style
         """
         self.jeu.configuration la configuration de jeu a analyser
         jtrait le joueur ayant le trait pour cet etat
@@ -122,12 +122,14 @@ class Parcours(Base):
         if self.moi == jtrait : niveau MAX
         else: niveau MIN
         """
+        if not evaluation:
+            evaluation = self.jeu.evaluation.__func__
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         if self.finPartie(jtrait) or profondeur == 0 :
             if self.moi == jtrait:
-                return None, self.evaluation(jtrait)
+                return None, evaluation(self.jeu, jtrait)
             else:
-                return None, - self.evaluation(jtrait)
+                return None, - evaluation(self.jeu, jtrait)
 
         else:
 
@@ -139,7 +141,7 @@ class Parcours(Base):
 
                     if rep > alpha :
                         return fils, rep
-                    petit_fils, rep_temp = self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur-1)
+                    petit_fils, rep_temp = self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur-1, evaluation)
 
                     if rep_temp > rep:
                         rep = rep_temp
@@ -156,7 +158,7 @@ class Parcours(Base):
                     if rep < beta :
                         return fils, rep
 
-                    petit_fils, rep_temp = self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur-1)
+                    petit_fils, rep_temp = self._alphabeta(self.adversaire(jtrait), alpha, beta, profondeur-1, evaluation)
 
 
                     if rep_temp < rep:
@@ -246,7 +248,7 @@ class IA(IAPlayer):
             renvoie le coup calculé
         """
         par = Parcours(unJeu)
-        bestcoup, eval = par.minmax(joueur, self.niveau, self.code, self.evaluation)
+        bestcoup, eval_ = par.minmax(joueur, self.niveau, self.code, self.evaluation)
         return bestcoup
 
 def futur_confs(doo):

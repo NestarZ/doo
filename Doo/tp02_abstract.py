@@ -69,7 +69,7 @@ class Base(object):
             return self._alphabeta(joueur,-BIGVALUE,BIGVALUE,profondeur, evaluation)
         if code == 5 :
             return self._alphabeta_negamax(joueur,-BIGVALUE,
-                                           BIGVALUE,profondeur, evaluation)
+                                           BIGVALUE, profondeur, evaluation)
 
     def _minmax(self,*args,**kwargs):
         """
@@ -152,14 +152,13 @@ class IAPlayer(Player):
     4 : alphabeta approche minmax, récursif
     5 : alphabeta approche negamax, récursif
     """
-    def __init__(self,lvl,code=0, evaluation=None):
-        self.nom = "zeOrdinator"
+    def __init__(self,lvl,code=0, evaluation=None, nom="zeOrdinator"):
+        self.nom = nom
         self.__niveau = 1 # initialisation de la profondeur de calcul
         self.__code = 0 # initialisation du type d'algo de parcours
         self.niveau = lvl
         self.code = code
         self.evaluation = evaluation
-        print(evaluation)
 
     @property
     def niveau(self): return self.__niveau
