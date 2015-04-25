@@ -178,14 +178,7 @@ def manche(funA=None, funB=None):
     if funB is None:
         funB = First()
     doo = Doo()
-    board = [VIDE, VIDE, VIDE,
-             VIDE, VIDE, VIDE,
-             VIDE, VIDE, VIDE,
-             BLANCS, VIDE, NOIRS]
-
-    t = 11
-    doo.configuration = board, t
-    jtrait = J_ATT if t%2 == 1 else J_DEF
+    jtrait = J_ATT
     hist = []
     while not doo.finPartie(jtrait) and not cycling(hist):
         if jtrait == J_ATT:
@@ -207,10 +200,6 @@ def manche(funA=None, funB=None):
         points = 0
     if cycling(hist):
         print("cycling !")
-        #replay(hist)
-    replay(hist)
-    print(hist)
-    #print(doo)
     return points, doo.configuration[1], hist
 
 def is_prise(coup):
@@ -265,15 +254,7 @@ def partie(j1, j2, min_manche=1):
 def replay(hist):
     role = {J_ATT:"J_ATT", J_DEF:"J_DEF"}
     doo = Doo()
-    doo = Doo()
-    board = [VIDE, VIDE, VIDE,
-             VIDE, VIDE, VIDE,
-             VIDE, VIDE, VIDE,
-             BLANCS, VIDE, NOIRS]
-
-    t = 11
-    doo.configuration = board, t
-    jtrait = J_ATT if t%2 == 1 else J_DEF
+    jtrait = J_ATT
     lstr, spl = '', '{}: {} {}\n'
     lstr += ">>> Phase 1 - Pose\n"
     print(hist)
