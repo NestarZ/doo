@@ -44,7 +44,7 @@ def play_manche(eval1, eval2, force=3, code=0):
 
 def main():
     start = time.time()
-    evaluations = [evaluation5, evaluation6, evaluation4, evaluation3, evaluation2, evaluation1]
+    evaluations = [evaluation5, evaluation6]#, evaluation4, evaluation3, evaluation2, evaluation1]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
     for eval1, eval2 in itertools.permutations(evaluations, 2):  # génère toutes les combinaisons d'évaluations, sans self vs self
@@ -193,7 +193,7 @@ def evaluation5(self, joueur):
         return - (smallest_distance) - nb_blancs*3
 
 def evaluation6(self, joueur):
-    global pos_win
+    global pos_win_white, pos_lose_black, pos_lose_white, pos_win_black
     board = self.configuration[0]
     idboard = [pion if pion != ROI else NOIRS for pion in board]
     id_ = create_id((idboard, self.configuration[1]), joueur)
@@ -224,16 +224,25 @@ def evaluation6(self, joueur):
                 nb_noirs += 1
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
 
-        if id_ in pos_win:
-            print('using memory')
+        if id_ in pos_win_black or id_ in pos_lose_white:
+            print('using memory: win for black')
             return 1000 - self.configuration[1] - 4*(nb_blancs + nb_noirs)
+        elif id_ in pos_win_white or id_ in pos_lose_black:
+            print('using memory: lose for black')
+            return -1000 + self.configuration[1] + 4*(nb_blancs + nb_noirs)
         if (board[4] == BLANCS):
             return - (smallest_distance) - 2*int(board[4] == BLANCS) - nb_blancs
         return - 5*nb_blancs - smallest_distance
 
 if __name__ == "__main__" :
     # force: la profondeur, code: l'algorithme
-    with open('all_pos_win.json', 'r') as f:
-        pos_win = set(json.load(f))
-    print(len(pos_win))
+    with open('all_pos_win_black.json', 'r') as f:
+        pos_win_black = set(json.load(f))
+    with open('all_pos_win_white.json', 'r') as f:
+        pos_win_white = set(json.load(f))
+    with open('all_pos_lose_black.json', 'r') as f:
+        pos_lose_black = set(json.load(f))
+    with open('all_pos_lose_white.json', 'r') as f:
+        pos_lose_white = set(json.load(f))
+    print(len(pos_win_black))
     main()

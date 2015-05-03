@@ -190,6 +190,7 @@ def manche(funA=None, funB=None):
         conf = doo.joue(jtrait, coup)
         doo.configuration = conf
         jtrait = doo.adversaire(jtrait)
+        print(doo)
     if doo.gagnant(J_ATT):
         points = 1
         if doo.configuration[0][4] == ROI:
