@@ -10,18 +10,17 @@ sur le jeu de Doo
 
 # changer XXXX par le nom du fichier correspondant à tp01b
 from tp01b import manche, replay, cycling, Human
-from arbres import Parcours, IA
+from arbres import IA, create_id
 from tp01a import *
-from all_pos_win_lose import create_id
+
 import json
 import itertools
 import pprint
-import random
+#import random
 import time
 
 
-
-def play_manche(eval1, eval2, force=3,code=0):
+def play_manche(eval1, eval2, force=3, code=0):
     """
     par defaut : une partie
     minmax recursif (code 0) niveau 3 (force 3)
@@ -45,7 +44,7 @@ def play_manche(eval1, eval2, force=3,code=0):
 
 def main():
     start = time.time()
-    evaluations = [evaluation5, evaluation6 , evaluation4, evaluation3, evaluation2, evaluation1]
+    evaluations = [evaluation5, evaluation6, evaluation4, evaluation3, evaluation2, evaluation1]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
     for eval1, eval2 in itertools.permutations(evaluations, 2):  # génère toutes les combinaisons d'évaluations, sans self vs self
@@ -77,7 +76,7 @@ def evaluation1(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
-        return random.randint(0,100)
+        return score
     else:
         if cycling(self.hist):
             return -10000*joueur
@@ -196,8 +195,10 @@ def evaluation5(self, joueur):
 def evaluation6(self, joueur):
     global pos_win
     board = self.configuration[0]
-    id_ = create_id(self.configuration, joueur)
+    idboard = [pion if pion != ROI else NOIRS for pion in board]
+    id_ = create_id((idboard, self.configuration[1]), joueur)
     pose = self.configuration[1] < 8
+
     if self.perdant(joueur): return -1000+self.configuration[1]
     if self.gagnant(joueur): return 1000-self.configuration[1]
     if pose:
@@ -222,15 +223,17 @@ def evaluation6(self, joueur):
             if pion == NOIRS or pion == ROI:
                 nb_noirs += 1
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
-        if nb_blancs < 3 and nb_noirs < 3:
-            if id_ in pos_win:
-                return 100 - 3*(nb_blancs + nb_noirs)
+
+        if id_ in pos_win:
+            print('using memory')
+            return 1000 - self.configuration[1] - 4*(nb_blancs + nb_noirs)
         if (board[4] == BLANCS):
             return - (smallest_distance) - 2*int(board[4] == BLANCS) - nb_blancs
         return - 5*nb_blancs - smallest_distance
 
 if __name__ == "__main__" :
     # force: la profondeur, code: l'algorithme
-    with open('pos_win.txt', 'r') as f:
+    with open('all_pos_win.json', 'r') as f:
         pos_win = set(json.load(f))
+    print(len(pos_win))
     main()

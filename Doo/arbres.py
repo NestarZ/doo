@@ -174,7 +174,7 @@ class Parcours(Base):
         """
            à développer
         """
-        identifiant = self.create_id(self.jeu.configuration, jtrait)
+        identifiant = create_id(self.jeu.configuration, jtrait)
         if identifiant in self.dico_win:
             if self.dico_win[identifiant][0] == INDECIS:
                 return None, True  # Opération identité du all de positionPerdante --> On ignore le cas
@@ -201,7 +201,7 @@ class Parcours(Base):
         """
            à développer
         """
-        identifiant = self.create_id(self.jeu.configuration, jtrait)
+        identifiant = create_id(self.jeu.configuration, jtrait)
         if identifiant in self.dico_lose:
             if self.dico_lose[identifiant][0] == INDECIS:
                 return False  # Opération identité du any de positionGagnante --> On ignore le cas
@@ -223,16 +223,16 @@ class Parcours(Base):
         self.dico_lose[identifiant] = (True, None)
         return True
 
-    def create_id(self, conf, jtrait):
-        if isinstance(conf[0], int):
-            return ((conf[1]%2)*2-1) * conf[0]
-        dico_pions = {VIDE: 1, ROI: 100, NOIRS: 10000, BLANCS: 1000000}
-        identifiant = 0
-        for i, case in enumerate(conf[0]):
-            identifiant ^= dico_pions[case] * (i+1)
-        if jtrait == J_ATT:
-            identifiant ^= 898  # max id = 276 pour les cases
-        return identifiant
+def create_id(conf, jtrait):
+    if isinstance(conf[0], int):
+        return ((conf[1]%2)*2-1) * conf[0]
+    dico_pions = {VIDE: 1, ROI: 100, NOIRS: 10000, BLANCS: 1000000}
+    identifiant = 0
+    for i, case in enumerate(conf[0]):
+        identifiant ^= dico_pions[case] * (i+1)
+    if jtrait == J_DEF:
+        identifiant = -identifiant
+    return identifiant
 
 class IA(IAPlayer):
     """ seule choixCoup est à modifier """
