@@ -15,10 +15,10 @@ INDECIS = object()
 
 class Parcours(Base):
     """ constructeur """
-    def __init__(self,unJeu):
-        super(Parcours,self).__init__(unJeu)
-        self.dico_win = {}
-        self.dico_lose = {}
+    def __init__(self, unJeu):
+        super(Parcours, self).__init__(unJeu)
+        self.dico_win = {J_ATT: {}, J_DEF: {}}
+        self.dico_lose = {J_ATT: {}, J_DEF: {}}
 
     def _minmax(self, joueur, profondeur, evaluation):
         """ minmax recursif doit renvoyer un coup,une evaluation
@@ -41,7 +41,7 @@ class Parcours(Base):
         _etat_entrant = copy.deepcopy(self.jeu.configuration)
         if 'hist' in dir(self.jeu):
             _etat_entrant_hist = self.jeu.hist[:]
-        if self.finPartie(joueur) or profondeur == 0 :
+        if self.finPartie(joueur) or profondeur == 0:
             if self.moi == joueur:
                 return None, evaluation(self.jeu, joueur)
             else:
@@ -49,7 +49,7 @@ class Parcours(Base):
 
         bestcoup = None
 
-        if self.moi == joueur :
+        if self.moi == joueur:
             rep = -BIGVALUE
             for conf, coup in futur_confs(self.jeu):
                 self.jeu.configuration = conf
@@ -175,26 +175,27 @@ class Parcours(Base):
            à développer
         """
         identifiant = create_id(self.jeu.configuration, jtrait)
-        if identifiant in self.dico_win:
-            if self.dico_win[identifiant][0] == INDECIS:
-                return None, True  # Opération identité du all de positionPerdante --> On ignore le cas
-            return (self.dico_win[identifiant][1], self.dico_win[identifiant][0])
+        if identifiant in self.dico_win[jtrait]:
+            if self.dico_win[jtrait][identifiant][0] == INDECIS:
+                return None, True  # Opération identité du all de positionPerdante> On ignore le cas
+            return (self.dico_win[jtrait][identifiant][1], self.dico_win[jtrait][identifiant][0])
 
-        self.dico_win[identifiant] = (INDECIS, None)
+        self.dico_win[jtrait][identifiant] = (INDECIS, None)
+
         if self.finPartie(jtrait):
-            self.dico_win[identifiant] = (self.jeu.gagnant(jtrait), None)
+            self.dico_win[jtrait][identifiant] = (self.jeu.gagnant(jtrait), None)
             return None, self.jeu.gagnant(jtrait)
 
-        _etat_entrant = self.jeu.configuration
+        _etat_entrant = copy.deepcopy(self.jeu.configuration)
         for conf, coup in futur_confs(self.jeu):
             self.jeu.configuration = conf
             position_perdante_adv = self.positionPerdante(self.adversaire(jtrait))
             if position_perdante_adv:
-                self.jeu.configuration = _etat_entrant
-                self.dico_win[identifiant] = (True, coup)
+                self.dico_win[jtrait][identifiant] = (True, coup)
+                self.jeu.configuration = copy.deepcopy(_etat_entrant)
                 return coup, True
-            self.jeu.configuration = _etat_entrant
-        self.dico_win[identifiant] = (False, None)
+            self.jeu.configuration = copy.deepcopy(_etat_entrant)
+        self.dico_win[jtrait][identifiant] = (False, None)
         return None, False
 
     def positionPerdante(self,jtrait):
@@ -202,25 +203,28 @@ class Parcours(Base):
            à développer
         """
         identifiant = create_id(self.jeu.configuration, jtrait)
-        if identifiant in self.dico_lose:
-            if self.dico_lose[identifiant][0] == INDECIS:
+        if identifiant in self.dico_lose[jtrait]:
+            if self.dico_lose[jtrait][identifiant][0] == INDECIS:
                 return False  # Opération identité du any de positionGagnante --> On ignore le cas
-            return self.dico_lose[identifiant][0]
+            return self.dico_lose[jtrait][identifiant][0]
+
+        self.dico_lose[jtrait][identifiant] = (INDECIS, None)
 
         if self.finPartie(jtrait):
-            self.dico_lose[identifiant] = (self.jeu.perdant(jtrait), None)
+            self.dico_lose[jtrait][identifiant] = (self.jeu.perdant(jtrait), None)
             return self.jeu.perdant(jtrait)
-        _etat_entrant = self.jeu.configuration
+
+        _etat_entrant = copy.deepcopy(self.jeu.configuration)
         for conf, coup in futur_confs(self.jeu):
             self.jeu.configuration = conf
             position_gagnante_adv = self.positionGagnante(self.adversaire(jtrait))[1]
             if not position_gagnante_adv:
-                self.jeu.configuration = _etat_entrant
-                self.dico_lose[identifiant] = (False, None)
+                self.dico_lose[jtrait][identifiant] = (False, None)
+                self.jeu.configuration = copy.deepcopy(_etat_entrant)
                 return False
-            self.jeu.configuration = _etat_entrant
+            self.jeu.configuration = copy.deepcopy(_etat_entrant)
 
-        self.dico_lose[identifiant] = (True, None)
+        self.dico_lose[jtrait][identifiant] = (True, None)
         return True
 
 def create_id(conf, jtrait):

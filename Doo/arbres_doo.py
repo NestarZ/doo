@@ -16,7 +16,7 @@ from tp01a import *
 import json
 import itertools
 import pprint
-#import random
+import random
 import time
 
 
@@ -44,10 +44,10 @@ def play_manche(eval1, eval2, force=3, code=0):
 
 def main():
     start = time.time()
-    evaluations = [evaluation5, evaluation6]#, evaluation4, evaluation3, evaluation2, evaluation1]
+    evaluations = [evaluation5, evaluation6, evaluation4, evaluation3, evaluation2, evaluation1]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
-    for eval1, eval2 in itertools.permutations(evaluations, 2):  # génère toutes les combinaisons d'évaluations, sans self vs self
+    for eval1, eval2 in itertools.permutations(evaluations, 2):  # génère toutes les matchs, sans self vs self
         score = play_manche(eval1, eval2, force=3, code=0)[0]
         if score > 0:
             score_att[eval1] += score
@@ -173,8 +173,8 @@ def evaluation5(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
-        return score
-        #return random.randint(0,100)
+        #return score
+        return random.randint(0, 100)
     else:
         if cycling(self.hist):
             return -10000*joueur
@@ -185,9 +185,6 @@ def evaluation5(self, joueur):
             if pion == NOIRS or pion == ROI:
                 nb_noirs += 1
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
-        if nb_blancs < 3 and nb_noirs < 3:
-            if id_ in pos_win:
-                return 100 - 3*(nb_blancs + nb_noirs)**2
         if (board[4] == BLANCS):
             return - (smallest_distance) - 4*int(board[4] == BLANCS) - nb_blancs
         return - (smallest_distance) - nb_blancs*3
@@ -208,11 +205,11 @@ def evaluation6(self, joueur):
                 score -= self._distance_from_doo(i)
                 for l in "rudl":
                     try:
-                        score -= int(self.doo.cell(i,l) == NOIRS)
+                        score += int(self.doo.cell(i,l) == BLANCS or self.doo.cell(i, l) == VIDE)
                     except:
                         pass
-        return score
-        #return random.randint(0,100)
+        #return score
+        return random.randint(0, 100)
     else:
         if cycling(self.hist):
             return -10000*joueur
@@ -225,10 +222,8 @@ def evaluation6(self, joueur):
                 smallest_distance = min(smallest_distance, self._distance_from_doo(i))
 
         if id_ in pos_win_black or id_ in pos_lose_white:
-            print('using memory: win for black')
             return 1000 - self.configuration[1] - 4*(nb_blancs + nb_noirs)
         elif id_ in pos_win_white or id_ in pos_lose_black:
-            print('using memory: lose for black')
             return -1000 + self.configuration[1] + 4*(nb_blancs + nb_noirs)
         if (board[4] == BLANCS):
             return - (smallest_distance) - 2*int(board[4] == BLANCS) - nb_blancs

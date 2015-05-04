@@ -28,8 +28,8 @@ def compute(joueur, type_):
     par = Parcours(doo)
     pos_too_deep = []
     for nb_noirs in range(1, 5):
-        for nb_blancs in range(1, 8):
-            for comb in generate_combination(nb_noirs, nb_blancs):
+        for nb_blancs in range(1, 9):
+            for comb in generate_combination(nb_noirs, nb_blancs, False):
                 try:
                     if joueur == J_ATT:
                         doo.configuration = comb, 11
@@ -49,9 +49,11 @@ def compute(joueur, type_):
         joueur_str = "white"
     with open('all_pos_' + type_ + '_' + joueur_str + '.json', 'w') as f:
         if type_ == "win":
-            json.dump(list(sorted(par.dico_win.keys())), f, indent=4)
+            pos_win = [key for key, item in par.dico_win[joueur].items() if item[0] is True]
+            json.dump(list(sorted(pos_win)), f, indent=4)
         else:
-            json.dump(list(sorted(par.dico_lose.keys())), f, indent=4)
+            pos_lose = [key for key, item in par.dico_lose[joueur].items() if item[0] is True]
+            json.dump(list(sorted(pos_lose)), f, indent=4)
 
 
 if __name__ == "__main__":
@@ -59,10 +61,11 @@ if __name__ == "__main__":
     for joueur in [J_ATT, J_DEF]:
         for type_ in ['win', 'lose']:
             to_do.append((joueur, type_))
-    with multiprocessing.Pool() as p:
+    with multiprocessing.Pool(3) as p:
         p.starmap(compute, to_do, 1)
     try:
         import winsound
         winsound.MessageBeep()
     except:
         pass
+    #print(len(list(generate_combination(1, 1))))
