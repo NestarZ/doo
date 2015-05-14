@@ -1,5 +1,5 @@
-from arbres import Parcours, create_id
-from tp01a import *
+from arbres import Parcours
+from tp01a import NOIRS, BLANCS, VIDE, Doo, J_ATT, J_DEF
 
 import itertools
 import sys
@@ -8,6 +8,11 @@ import multiprocessing
 
 
 def generate_combination(nb_noirs, nb_blancs, dont_spawn_on_doo=True):
+    """
+    Génère l'ensemble des combinaisons possibles d'un jeu de Doo avec `nb_nois` noirs et
+    `nb_blancs` blancs.
+    Si dont_spawn_on_doo est False, alors la case du Doo peut être occupée à la génération.
+    """
     available = set(range(12))
     if dont_spawn_on_doo:
         available.remove(4)
@@ -24,6 +29,12 @@ def generate_combination(nb_noirs, nb_blancs, dont_spawn_on_doo=True):
 
 
 def compute(joueur, type_):
+    """
+    Calcule les positions perdantes ou gagnante du `joueur`.
+    type_ - "win" pour les positions gagnantes
+            "lose" pour les positions perdantes
+    joueur - J_ATT ou J_DEF, le joueur dont on regarde les positions.
+    """
     doo = Doo()
     par = Parcours(doo)
     pos_too_deep = []
@@ -61,11 +72,10 @@ if __name__ == "__main__":
     for joueur in [J_ATT, J_DEF]:
         for type_ in ['win', 'lose']:
             to_do.append((joueur, type_))
-    with multiprocessing.Pool(3) as p:
+    with multiprocessing.Pool(4) as p:
         p.starmap(compute, to_do, 1)
     try:
         import winsound
-        winsound.MessageBeep()
+        winsound.MessageBeep()  # Joue un son sur windows quand le calcul est fini.
     except:
         pass
-    #print(len(list(generate_combination(1, 1))))

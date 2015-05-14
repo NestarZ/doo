@@ -4,7 +4,6 @@ from tp01a import Doo
 from tp01a import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
 
 
-
 class TestDoo(unittest.TestCase):
 
     def test_listecoup(self):
@@ -26,10 +25,10 @@ class TestDoo(unittest.TestCase):
         doo.configuration = board, t
         print(doo.listeCoups(J_DEF))
 
-        board = [ VIDE, NOIRS, VIDE,
+        board = [VIDE, NOIRS, VIDE,
                  NOIRS, BLANCS, ROI,
                  BLANCS, NOIRS, VIDE,
-                 VIDE, VIDE, VIDE ]
+                 VIDE, VIDE, VIDE]
         t = 10
         doo.configuration = board, t
         print(doo.listeCoups(J_DEF))

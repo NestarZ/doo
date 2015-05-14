@@ -113,7 +113,7 @@ class Human(Player):
                 coup = self._ask_pose_def()
             else:
                 coup = self._ask_coup()
-                if coup not in lcoups and coup != None: # Si deplacement, alors pas en list
+                if coup not in lcoups and coup is not None:  # Si deplacement, alors pas en list
                     coup = (coup[0], coup[1][0])
             valid = coup in lcoups
         return coup
@@ -190,7 +190,8 @@ def manche(funA=None, funB=None):
         conf = doo.joue(jtrait, coup)
         doo.configuration = conf
         jtrait = doo.adversaire(jtrait)
-        if conf[1] == 8: print(doo)
+        if conf[1] == 8:
+            print(doo)
     if doo.gagnant(J_ATT):
         points = 1
         if doo.configuration[0][4] == ROI:
@@ -203,9 +204,11 @@ def manche(funA=None, funB=None):
         print("cycling !")
     return points, doo.configuration[1], hist
 
+
 def is_prise(coup):
     """Détermine si le coup est une prise"""
     return isinstance(coup[1], list)
+
 
 def cycling(hist):
     """
@@ -224,36 +227,34 @@ def cycling(hist):
             return True
     return False
 
-def partie(j1, j2, min_manche=1):
+
+def partie(j1, j2, min_manche=1, verbeux=False):
     """
     Affiche le nom du gagnant, son score et le nombre de manches effectuées
     Renvoie un dictionnaire dont les index sont les numéros de manche,
     les valeurs étant la liste des coups au cours de chaque manche.
     """
-    # print("Début d'une partie !")
-    def creation_joueur(n):
-        x = None
-        types = {'1':Human, '2':Random, '3':First}
-        while x not in types.keys():
-            x = input("J{} - Choisir un joueur : "
-                      "1:Human, 2:Random, 3:First\n>".format(n))
-        return types[x](input('Entrez un nom:\n>'))
-    jatt = j1 if j1 else Random() # creation_joueur(1)
-    jdef = j2 if j2 else Random()  # creation_joueur(2)
-    points, log, m = {jatt:0, jdef:0}, {jatt:[], jdef:[]}, 1
-    while not (points[jdef] >= 5 and m%2==0) or points[jatt]==points[jdef]:
+    if verbeux:
+        print("Début d'une partie !")
+
+    jatt = j1 if j1 else Random()
+    jdef = j2 if j2 else Random()
+    points, log, m = {jatt: 0, jdef: 0}, {jatt: [], jdef: []}, 1
+    while not (points[jdef] >= 5 and m % 2 == 0) or points[jatt] == points[jdef]:
         p, foo, log[m] = manche(jatt, jdef)
         points[jatt] += p
         jatt, jdef = jdef, jatt
         m += 1
     gagnant = max(points, key=points.get)
-    # print('Winner: {} ({} points)'.format(gagnant.name, points[gagnant]))
-    # print('Manches: {}'.format(m))
-    # print("Fin de la partie !")
+    if verbeux:
+        print('Winner: {} ({} points)'.format(gagnant.name, points[gagnant]))
+        print('Manches: {}'.format(m))
+        print("Fin de la partie !")
     return tuple(points.values()), log
 
+
 def replay(hist):
-    role = {J_ATT:"J_ATT", J_DEF:"J_DEF"}
+    role = {J_ATT: "J_ATT", J_DEF: "J_DEF"}
     doo = Doo()
     jtrait = J_ATT
     lstr, spl = '', '{}: {} {}\n'
@@ -268,7 +269,7 @@ def replay(hist):
         doo.configuration = conf
         if isinstance(c[0], str):
             lstr += spl.format(role[jtrait],
-                               c[0],ordi2humain(c[1]))
+                               c[0], ordi2humain(c[1]))
         elif isinstance(c[1], list):
             cc1 = [ordi2humain(_) for _ in c[1]]
             lstr += spl.format(role[jtrait],
@@ -288,7 +289,7 @@ if __name__ == "__main__":
     a = Random()
     b = First()
     c = Human()
-    d = IA(3,4)
+    d = IA(3, 4)
     if False:  # NEVER
         print(a.name, "en attaque", a(doo, J_ATT))
         print(a.name, "en defense", a(doo, J_DEF))
@@ -299,4 +300,3 @@ if __name__ == "__main__":
         print(c.name, "en attaque", c(doo, J_ATT))
         print(c.name, "en defense", c(doo, J_DEF))
     manche(None, None)
-    replay(histp[1])

@@ -2,22 +2,23 @@
 # -*- coding: utf-8 -*-
 
 #======== VARIABLES A INITIALISER EN FONCTION DE VOTRE CODE ========#
-J_ATT = -1 # le code désignant le joueur ayant les noirs
-J_DEF = 1 # le code désignant le joueur ayant les blancs
-BLANCS = "B" # le code désignant un pion blanc
-NOIRS = "N" # le code désignant un pion noir
-ROI = "R" # le code désignant le Roi
-VIDE = None # le code désignant une case vide
+J_ATT = -1  # le code désignant le joueur ayant les noirs
+J_DEF = 1  # le code désignant le joueur ayant les blancs
+BLANCS = "B"  # le code désignant un pion blanc
+NOIRS = "N"  # le code désignant un pion noir
+ROI = "R"  # le code désignant le Roi
+VIDE = None  # le code désignant une case vide
 #===================================================================#
 
 #================== importation ====================================#
 # ICI VOUS METTEZ LES IMPORTATIONS DES MODULES/METHODES NECESSAIRES #
 # exple: from abstract import ... cf allumettes.py                  #
 #-------------------------------------------------------------------#
-from abstract import Game, Player
+from abstract import Game
 #================ Debut de votre code ==============================#
 
-DOO = 4
+DOO = 4  # L'identitifiant de la case qui représente le Doo.
+
 
 class Doo(Game):
 
@@ -39,7 +40,7 @@ class Doo(Game):
     @classmethod
     def format(cls, configuration):
         _tab, _tr = configuration
-        _str = "c'est au tour de {} ({})".format("J_ATT" if _tr%2 else "J_DEF", _tr)
+        _str = "c'est au tour de {} ({})".format("J_ATT" if _tr % 2 else "J_DEF", _tr)
         _border = '{}*{}*'.format('\n', '-'*(len(_tab)//3+1))
         for i, case in enumerate(_tab):
             _str += _border + '\n|' if i % 3 == 0 else ''
@@ -58,10 +59,10 @@ class Doo(Game):
 
     @configuration.setter
     def configuration(self, newcfg):
-        assert isinstance(newcfg,(list,tuple))
+        assert isinstance(newcfg, (list, tuple))
         assert len(newcfg) == 2
-        assert isinstance(newcfg[0],list)
-        assert isinstance(newcfg[1],int)
+        assert isinstance(newcfg[0], list)
+        assert isinstance(newcfg[1], int)
         self.board, self.tour = newcfg
 
     @classmethod
@@ -72,11 +73,11 @@ class Doo(Game):
         """
         return _msg
 
-    def adversaire(self,joueur):
+    def adversaire(self, joueur):
         """ renvoie l'autre joueur """
         return -joueur
 
-    def gagnant(self,joueur):
+    def gagnant(self, joueur):
         """ renvoie True si l'etat est une victoire pour le joueur """
         nb_pions_noirs = self.board.count(ROI) + self.board.count(NOIRS)
         if self.pose:
@@ -86,11 +87,11 @@ class Doo(Game):
         else:
             return self.finPartie(joueur) and not self.gagnant(J_ATT)
 
-    def perdant(self,joueur):
+    def perdant(self, joueur):
         """ renvoie True si l'etat est une defaite pour le joueur """
         return self.gagnant(self.adversaire(joueur))
 
-    def finPartie(self,joueur):
+    def finPartie(self, joueur):
         """ renvoie True si la partie est terminee """
         nb_pions_noirs = self.board.count(ROI) + self.board.count(NOIRS)
         nb_pions_blancs = self.board.count(BLANCS)
@@ -99,7 +100,7 @@ class Doo(Game):
                                   or nb_pions_noirs == 0
                                   or nb_pions_blancs == 0)
 
-    def listeCoups(self,joueur):
+    def listeCoups(self, joueur):
         """ renvoie la liste des coups autorises pour le joueur """
 
         if self.trait != joueur:
@@ -112,31 +113,30 @@ class Doo(Game):
 
         return self._listeCoupsosef(joueur)
 
-
     def _listeCoupsosef(self, joueur):
-        possibles_dir = {J_ATT : ['u', 'd', 'r', 'l', 'ur', 'ul', 'dl', 'dr'],
-                         J_DEF : ['u', 'd', 'r', 'l']}
+        possibles_dir = {J_ATT: ['u', 'd', 'r', 'l', 'ur', 'ul', 'dl', 'dr'],
+                         J_DEF: ['u', 'd', 'r', 'l']}
         best_chain = 0  # Plus grand nombre de pions mangeable en un coup
 
         if joueur == J_ATT:
             _mangeable = (BLANCS,)
-            _control = (NOIRS,ROI)
+            _control = (NOIRS, ROI)
         else:
             _control = (BLANCS,)
-            _mangeable = (NOIRS,ROI)
+            _mangeable = (NOIRS, ROI)
 
         if self.pose:
-            r1 = lambda i: not i == 4 and (not i in (1,3,5) or self.tour > 1)
+            r1 = lambda i: not i == 4 and (not i in (1, 3, 5) or self.tour > 1)
             if ROI in self.board and ROI in _control:
                 _control = (NOIRS, )
             elif not ROI in self.board and self.board.count(NOIRS) == 3:
                 _control = (ROI, )
             if joueur == J_ATT:
-                _pose = [(type_,i) for i,x in enumerate(self.board) if x == VIDE and r1(i) for type_ in _control]
+                _pose = [(type_, i) for i, x in enumerate(self.board)
+                         if x == VIDE and r1(i) for type_ in _control]
             else:
-                _pose = [(i, j) for i in range(12) for j in range(i+1, 12) if r1(i) and r1(j)
-                                                                              and self.board[i] == VIDE
-                                                                              and self.board[j] == VIDE]
+                _pose = [(i, j) for i in range(12) for j in range(i+1, 12)
+                         if r1(i) and r1(j) and self.board[i] == VIDE and self.board[j] == VIDE]
             return _pose
         else:
             pions = [i for i, pion in enumerate(self.board) if pion in _control]
@@ -168,9 +168,9 @@ class Doo(Game):
 
     def prise(self, pion, mangeable, dirs, biggest, already_eaten=None, path=None):
         """
-        Donne la liste des prises possibles en partant de `pion` et en pouvant manger les `mangeable`
-        Si `biggest` vaut True, alors la liste des prises est récursive et retourne toutes les
-        chaînes possibles.
+        Donne la liste des prises possibles en partant de `pion` et en pouvant manger les
+        `mangeable`. Si `biggest` vaut True, alors la liste des prises est récursive et
+        retourne toutes les chaînes possibles.
         """
         board = self.configuration[0]
         prises = []
@@ -193,9 +193,9 @@ class Doo(Game):
                     cur_path = path + [end]
                     prises.append((pion, cur_path))
                     if biggest:
-                        prises += self.prise(pion, mangeable, dirs, biggest, already_eaten + [other], cur_path)
+                        prises += self.prise(pion, mangeable, dirs, biggest,
+                                             already_eaten + [other], cur_path)
         return prises
-
 
     def cell(self, pos, direction):
         """
@@ -230,7 +230,7 @@ class Doo(Game):
                     raise ValueError
         return pos
 
-    def joue(self,joueur,coup):
+    def joue(self, joueur, coup):
         """
         renvoie une nouvelle configuration
         apres que le joueur a effectue son coup
@@ -254,17 +254,18 @@ class Doo(Game):
                     _temp_t[depart] = VIDE
                     _temp_t[depart+(distance//2)] = VIDE
                     depart = end[i]
-
-        else :
+        else:
             raise ValueError
         return _temp_t, _temp_tr
 
-    def evaluation(self,joueur):
+    def evaluation(self, joueur):
         """
         evalue numeriquement la situation dans lequel se trouve le joueur
         """
-        if self.perdant(joueur): return -100
-        if self.gagnant(joueur): return 100
+        if self.perdant(joueur):
+            return -100
+        if self.gagnant(joueur):
+            return 100
         if self.pose:
             score = 0
             for i, pion in enumerate(self.board):
@@ -282,6 +283,19 @@ class Doo(Game):
             return - (smallest_distance)**2 - nb_blancs
 
     def _distance_from_doo(self, i):
+        """
+        Retourne la distance de entre le case `i` et le Doo, quand on peut se déplacer dans
+        les 8 directions possibles.
+        +---+---+---+
+        | 1 | 1 | 1 |
+        +---+---+---+
+        | 1 | 0 | 1 |
+        +---+---+---+
+        | 1 | 1 | 1 |
+        +---+---+---+
+        | 2 | 2 | 2 |
+        +---+---+---+
+        """
         if i == DOO:
             return 0
         if i <= 8:
