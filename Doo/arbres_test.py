@@ -62,7 +62,7 @@ class ia(Player):
         print("je choisis",coup,"valeur",valeur)
         return coup # renvoie l'info attendue, le coup à jouer
 
-def main(force=3,code=0):
+def main(force=6,code=0):
     """
     par defaut : une partie humain contre
     minmax recursif (code 0) niveau 3 (force 3)
@@ -93,7 +93,4 @@ if __name__ == "__main__" :
             code = -1
         finally:
             if code not in range(6): code =-1
-        if code != -1: main(3,code)
-
-
-    
+        if code != -1: main(6,code)

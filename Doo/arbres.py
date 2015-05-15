@@ -33,7 +33,6 @@ class Parcours(Base):
 
         sont disponibles
         """
-
         # On sauvegarde l'etat dans lequel on entre
         if not evaluation:
             evaluation = self.jeu.evaluation.__func__
@@ -47,12 +46,11 @@ class Parcours(Base):
                 return None, -evaluation(self.jeu, joueur)
 
         bestcoup = None
-
         if self.moi == joueur:
             rep = -BIGVALUE
             for conf, coup in futur_confs(self.jeu):
                 self.jeu.configuration = conf
-                nrep = max(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
+                nrep = self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1]
                 self.jeu.configuration = copy.deepcopy(_etat_entrant)
                 if 'hist' in dir(self.jeu):
                     _etat_entrant_hist = self.jeu.hist[:]
@@ -65,7 +63,7 @@ class Parcours(Base):
                 self.jeu.configuration = conf
                 if 'hist' in dir(self.jeu):
                     self.jeu.hist.append(coup)
-                nrep = min(rep, self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1])
+                nrep = self._minmax(self.adversaire(joueur), profondeur-1, evaluation)[1]
                 self.jeu.configuration = copy.deepcopy(_etat_entrant)
                 if 'hist' in dir(self.jeu):
                     self.jeu.hist = copy.deepcopy(_etat_entrant_hist)
@@ -77,6 +75,42 @@ class Parcours(Base):
         self.jeu.configuration = _etat_entrant
         # renvoie le coup et son évaluation
         return bestcoup, rep
+
+    def _minmax_iter(self, joueur, max_profondeur, evaluation=None):
+        profondeur = 0
+        if not evaluation:
+            evaluation = self.jeu.evaluation.__func__
+        _etat_entrant = copy.deepcopy(self.jeu.configuration)
+
+        def get_eval(joueur, profondeur):
+            if self.finPartie(joueur) or profondeur == max_profondeur:
+                coeff = 1 if self.moi == joueur else -1
+                return coeff*evaluation(self.jeu, joueur)
+            return None
+
+        bestcoup = None
+        stack = list()
+        stack.append((joueur, profondeur, self.jeu.configuration, None))
+        while stack:
+            print(stack)
+            joueur, profondeur, self.jeu.configuration, nrep = stack.pop()
+            my_turn = (self.moi == joueur)
+            rep = -BIGVALUE if my_turn else +BIGVALUE
+            _etat_entrant2 = copy.deepcopy(self.jeu.configuration)
+            for conf, coup in futur_confs(self.jeu):
+                self.jeu.configuration = conf
+                if self.finPartie(joueur) or profondeur == max_profondeur:
+                    nrep = get_eval(self.adversaire(joueur), profondeur)
+                f = max if self.moi == joueur else min
+                stack.append((self.adversaire(joueur), profondeur+1, conf, nrep))
+                self.jeu.configuration = copy.deepcopy(_etat_entrant2)
+
+
+        # avant de sortir on restaure le bon etat
+        self.jeu.configuration = copy.deepcopy(_etat_entrant)
+        # renvoie le coup et son évaluation
+        return bestcoup, rep
+
 
     def _negamax(self, jtrait, profondeur, evaluation=None):
         """

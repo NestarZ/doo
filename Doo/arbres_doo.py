@@ -11,6 +11,7 @@ sur le jeu de Doo
 from tp01b import manche, Human
 from arbres import IA
 from tp01a import *
+from evaluations import dummy, evaluation1, evaluation2, evaluation3, evaluation4, evaluation5, evaluation6
 
 import itertools
 import pprint

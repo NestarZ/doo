@@ -299,4 +299,5 @@ if __name__ == "__main__":
         print('='*10)
         print(c.name, "en attaque", c(doo, J_ATT))
         print(c.name, "en defense", c(doo, J_DEF))
-    manche(None, None)
+    points, manches, hist = manche(First(), First())
+    replay(hist)

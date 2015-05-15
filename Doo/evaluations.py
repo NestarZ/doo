@@ -1,7 +1,7 @@
 import random
-from td01a import ROI, BLANCS, NOIRS, VIDE
-from td01b import cycling
-from parcours import create_id
+from tp01a import ROI, BLANCS, NOIRS, VIDE
+from tp01b import cycling
+from arbres import create_id
 import json
 
 
