@@ -7,4 +7,4 @@ level = {1: evaluation4, 2: evaluation5, 3: evaluation6}
 
 force = int(input("force: "))
 difficulte = min(3, max(1, int(input("difficulte (1: facile, 2: moyen, 3: difficile): "))))
-partie(Human(), IA(force, 4, level[difficulte]))
+partie(Human(), IA(force, 4, level[difficulte]), 1, True)

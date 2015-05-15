@@ -162,7 +162,6 @@ class Human(Player):
         try:
             start_h, dest_h = input('>>> ').split(None, 1)
             dest_l = dest_h.split()
-            print(dest_l)
             start = humain2ordi(start_h)
             dest = [humain2ordi(c) for c in dest_l]
         except ValueError:

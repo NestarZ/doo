@@ -20,12 +20,10 @@ import time
 
 def play_manche(eval1, eval2, force=3, code=0):
     """
-    par defaut : une partie
-    minmax recursif (code 0) niveau 3 (force 3)
-    contre First
+    Fait jouer une manche entre deux IA avec la force `force` et l'algorithme associé à `code`.
     """
     jA = IA(force, code, eval1)
-    jB = IA(force, code, eval2)  # joueur par défaut
+    jB = IA(force, code, eval2)
     #jA = Human()
     try:
         print(jA.nom, "force %d code %d with %s" % (jA.niveau, jA.code, jA.evaluation.__name__))
@@ -36,11 +34,13 @@ def play_manche(eval1, eval2, force=3, code=0):
     except:
         pass
     score, tour, hist = manche(jA, jB)
-    # replay(hist)
     return score, hist
 
 
 def main():
+    """
+    organise un tounoi entre toutes les IA dans la liste `evaluations`.
+    """
     start = time.time()
     evaluations = [evaluation5, evaluation6, evaluation4, evaluation3, evaluation2, evaluation1,
                    dummy]
