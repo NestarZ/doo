@@ -72,7 +72,7 @@ if __name__ == "__main__":
     for joueur in [J_ATT, J_DEF]:
         for type_ in ['win', 'lose']:
             to_do.append((joueur, type_))
-    with multiprocessing.Pool(4) as p:
+    with multiprocessing.Pool() as p:
         p.starmap(compute, to_do, 1)
     try:
         import winsound

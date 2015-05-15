@@ -227,6 +227,44 @@ def evaluation6(self, joueur):
             return - (smallest_distance) - 2*int(board[4] == BLANCS) - nb_blancs
         return - 5*nb_blancs - smallest_distance
 
+
+def evaluation6_random(self, joueur):
+    global pos_win_white, pos_lose_black, pos_lose_white, pos_win_black
+    board = self.configuration[0]
+    idboard = [pion if pion != ROI else NOIRS for pion in board]
+    trait = J_ATT if self.configuration[1] % 2 == 1 else J_DEF
+    id_ = create_id((idboard, self.configuration[1]), trait)
+    pose = self.configuration[1] < 8
+
+    if self.perdant(joueur):
+        return -1000+self.configuration[1]
+    if self.gagnant(joueur):
+        return 1000-self.configuration[1]
+
+    if pose:
+        return random.randint(0, 100)
+    else:
+        if cycling(self.hist):
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
+        nb_blancs = board.count(BLANCS)
+        nb_noirs = 0
+        smallest_distance = 3
+        for i, pion in enumerate(board):
+            if pion == NOIRS or pion == ROI:
+                nb_noirs += 1
+                smallest_distance = min(smallest_distance, self._distance_from_doo(i))
+
+        if id_ in pos_win_black or id_ in pos_lose_white:
+            return 1000 - self.configuration[1] - 4*(nb_blancs + nb_noirs)
+        elif id_ in pos_win_white or id_ in pos_lose_black:
+            return -1000 + self.configuration[1] + 4*(nb_blancs + nb_noirs)
+        if (board[4] == BLANCS):
+            return - (smallest_distance) - 2*int(board[4] == BLANCS) - nb_blancs
+        return - 5*nb_blancs - smallest_distance
+
 with open('all_pos_win_black.json', 'r') as f:
     pos_win_black = set(json.load(f))
 with open('all_pos_win_white.json', 'r') as f:

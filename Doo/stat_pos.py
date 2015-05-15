@@ -48,7 +48,7 @@ with open('all_pos_lose_white.json', 'r') as f:
 
 nb_lose = 0
 nb_win = 0
-for comb in generate_combination(4, 7, True, False):
+for comb in generate_combination(4, 7, True, True):
     doo = Doo()
     doo.configuration = comb, 8
     id_ = create_id(doo.configuration, J_DEF)

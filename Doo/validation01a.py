@@ -7,8 +7,8 @@ __author__ = "mmc <marc-michel.corsini@u-bordeaux.fr>"
 try:
     # changer XXXX par le nom de votre fichier
     # changer YYYY par la classe du jeu
-    from XXXX import YYYY as ze_class
-    from XXXX import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
+    from tp01a import Doo as ze_class
+    from tp01a import J_ATT, J_DEF, BLANCS, NOIRS, ROI, VIDE
     # NE PAS MODIFIER CE QUI SUIT
 except Exception as _e :
     print(_e)

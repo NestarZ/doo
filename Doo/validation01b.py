@@ -6,7 +6,7 @@ __author__ = "mmc <marc-michel.corsini@u-bordeaux.fr>"
 
 try:
     # changer XXXX par le nom de votre fichier
-    import XXXX as tp
+    import tp01b as tp
     # import tp01b as tp
     # NE PAS MODIFIER CE QUI SUIT
 
