@@ -42,13 +42,12 @@ def play_manche(eval1, eval2, force=3, code=0):
 
 def main():
     start = time.time()
-    evaluations = [evaluation5, evaluation6, evaluation4, evaluation3, evaluation2, evaluation1,
-                   dummy]
+    evaluations = [evaluation5, evaluation6, evaluation4, evaluation3, evaluation2, evaluation1, dummy]
     score_att = {evaluation: 0 for evaluation in evaluations}
     score_def = {evaluation: 0 for evaluation in evaluations}
     # fait s'affronter toutes les évalutations, sans self vs self
     for eval1, eval2 in itertools.permutations(evaluations, 2):
-        score = play_manche(eval1, eval2, force=3, code=0)[0]
+        score = play_manche(eval1, eval2, force=4, code=4)[0]
         if score > 0:
             score_att[eval1] += score
         else:

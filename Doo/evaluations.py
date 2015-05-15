@@ -1,5 +1,5 @@
 import random
-from tp01a import ROI, BLANCS, NOIRS, VIDE
+from tp01a import ROI, BLANCS, NOIRS, VIDE, J_ATT, J_DEF
 from tp01b import cycling
 from arbres import create_id
 import json
@@ -10,6 +10,11 @@ def dummy(self, joueur):
         return -100
     if self.gagnant(joueur):
         return 100
+    if cycling(self.hist):  # On punit fortement le cycling pour les deux joueurs
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
     return 0
 
 
@@ -24,10 +29,15 @@ def evaluation1(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
+                if i % 2 == 1 and (pion == NOIRS or pion == ROI):
+                    score += 2
         return score
     else:
         if cycling(self.hist):
-            return -10000*joueur
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
         nb_blancs = self.board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -48,11 +58,18 @@ def evaluation2(self, joueur):
         score = 0
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
-                score -= self._distance_from_doo(i)
+                for d in 'rudl':
+                    try:
+                        score += int(self.cell(i, d) == BLANCS) * 2
+                    except ValueError:
+                        pass
         return score
     else:
         if cycling(self.hist):
-            return -10000*joueur
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
         nb_blancs = self.board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -74,10 +91,18 @@ def evaluation3(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
+                for d in 'rudl':
+                        try:
+                            score += int(self.cell(i, d) == NOIRS) * 2
+                        except ValueError:
+                            pass
         return score
     else:
         if cycling(self.hist):
-            return -10000*joueur
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
         nb_blancs = self.board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -97,12 +122,22 @@ def evaluation4(self, joueur):
         score = 0
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
+                for d in 'rudl':
+                        try:
+                            score -= int(self.cell(i, d) == NOIRS)
+                        except ValueError:
+                            pass
+            score -= self._distance_from_doo(i)
+            if pion == ROI:
                 score -= self._distance_from_doo(i)
         return score
         #return random.randint(0,100)
     else:
         if cycling(self.hist):
-            return -10000
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -125,11 +160,14 @@ def evaluation5(self, joueur):
         for i, pion in enumerate(self.board):
             if pion == NOIRS or pion == ROI:
                 score -= self._distance_from_doo(i)
-        #return score
-        return random.randint(0, 100)
+        return score
+        #return random.randint(0, 100)
     else:
         if cycling(self.hist):
-            return -10000*joueur
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
@@ -146,11 +184,15 @@ def evaluation6(self, joueur):
     global pos_win_white, pos_lose_black, pos_lose_white, pos_win_black
     board = self.configuration[0]
     idboard = [pion if pion != ROI else NOIRS for pion in board]
-    id_ = create_id((idboard, self.configuration[1]), joueur)
+    trait = J_ATT if self.configuration[1] % 2 == 1 else J_DEF
+    id_ = create_id((idboard, self.configuration[1]), trait)
     pose = self.configuration[1] < 8
 
-    if self.perdant(joueur): return -1000+self.configuration[1]
-    if self.gagnant(joueur): return 1000-self.configuration[1]
+    if self.perdant(joueur):
+        return -1000+self.configuration[1]
+    if self.gagnant(joueur):
+        return 1000-self.configuration[1]
+
     if pose:
         score = 0
         for i, pion in enumerate(self.board):
@@ -158,14 +200,17 @@ def evaluation6(self, joueur):
                 score -= self._distance_from_doo(i)
                 for l in "rudl":
                     try:
-                        score += int(self.doo.cell(i, l) == BLANCS or self.doo.cell(i, l) == VIDE)
+                        score += int(self.doo.cell(i, l) == BLANCS or self.doo.cell(i, l) == VIDE) * 2
                     except:
                         pass
-        #return score
-        return random.randint(0, 100)
+        return score
+        #return random.randint(0, 100)
     else:
         if cycling(self.hist):
-            return -10000*joueur
+            if joueur == J_ATT:
+                return -10000
+            else:
+                return 10000
         nb_blancs = board.count(BLANCS)
         nb_noirs = 0
         smallest_distance = 3
